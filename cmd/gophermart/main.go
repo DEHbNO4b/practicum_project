@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
-	"github.com/DEHbNO4b/practicum_project/internal/maindb"
+	"github.com/DEHbNO4b/practicum_project/internal/repository/postgres"
 )
 
 func main() {
@@ -18,9 +18,9 @@ func main() {
 }
 func run() error {
 	cfg := parseFlag()
-	pdb, err := maindb.NewPostgresDB(cfg.Database_url)
+	pdb, err := postgres.NewPostgresDB(cfg.Database_url)
 	if err != nil {
-
+		return err
 	}
 	return nil
 }

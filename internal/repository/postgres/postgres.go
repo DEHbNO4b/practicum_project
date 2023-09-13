@@ -1,4 +1,4 @@
-package maindb
+package postgres
 
 import (
 	"database/sql"
