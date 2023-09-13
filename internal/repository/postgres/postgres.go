@@ -13,8 +13,8 @@ import (
 // 'postgres://user:password@localhost:5432/database'
 // -d='postgres://practicum:practicum@localhost:5432/practicum'
 var createTable string = `CREATE TABLE if not exists practicumusers (
-	id integer primary key,
-	login varchar(100),
+	id serial primary key,
+	login varchar(100) UNIQUE,
 	password varchar(200)
 	);`
 
@@ -45,6 +45,11 @@ func (pdb *UserDB) Close() {
 		pdb.DB.Close()
 	}
 }
-func (pdb *UserDB) AddUser(ctx context.Context, user *domain.User) error {
-	return nil
+func (pdb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
+	user := userDomainToStore(u)
+	_, err := pdb.DB.Exec(`insert into practicumusers (login,password) values($1,$2);`, user.Login, user.Password)
+	if err != nil {
+		logger.Log.Error("unable to add user", zap.Error(err))
+	}
+	return err
 }

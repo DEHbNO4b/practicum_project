@@ -12,15 +12,18 @@ type User struct {
 	password string
 }
 
-func NewUser(id uuid.UUID, login, password string) (*User, error) {
-	if id == uuid.Nil {
-		return nil, fmt.Errorf("%w:id is required", ErrRequired)
-	}
+func NewUser(login, password string) (*User, error) {
 	if login == "" {
 		return nil, fmt.Errorf("%w:login is required", ErrRequired)
 	}
 	if password == "" {
 		return nil, fmt.Errorf("%w:password is required", ErrRequired)
 	}
-	return &User{id: id, login: login, password: password}, nil
+	return &User{login: login, password: password}, nil
+}
+func (u *User) Login() string {
+	return u.login
+}
+func (u *User) Password() string {
+	return u.password
 }
