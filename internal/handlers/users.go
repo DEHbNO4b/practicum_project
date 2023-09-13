@@ -22,4 +22,6 @@ func NewRegister(userRepo UserService) *UserRegister {
 func (u *UserRegister) Register(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Register handler")
 
+	u.userRepo.AddUser(r.Context())
+
 }

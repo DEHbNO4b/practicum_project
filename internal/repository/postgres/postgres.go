@@ -10,7 +10,9 @@ import (
 	"go.uber.org/zap"
 )
 
-var createTable string = `CREATE TABLE practicumusers (
+// 'postgres://user:password@localhost:5432/database'
+// -d='postgres://practicum:practicum@localhost:5432/practicum'
+var createTable string = `CREATE TABLE if not exists practicumusers (
 	id integer primary key,
 	login varchar(100),
 	password varchar(200)
