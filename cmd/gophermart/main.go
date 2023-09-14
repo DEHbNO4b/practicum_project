@@ -37,6 +37,7 @@ func run() error {
 	uhandler := handlers.NewRegister(&userService)
 	r := chi.NewRouter()
 	r.Post(`/api/user/register`, uhandler.Register)
+	r.Post(`/api/user/login`, uhandler.Login)
 	srv := &http.Server{
 		Addr:    cfg.Run_adress,
 		Handler: r,
