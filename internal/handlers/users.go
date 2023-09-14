@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
@@ -27,7 +28,7 @@ func (u *UserRegister) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	logger.Log.Sugar().Info(user)
+	logger.Log.Sugar().Infof("%+v", user)
 	dUser, err := userHandlerToDomain(user)
 	if err != nil {
 		logger.Log.Error("unable to create user", zap.Error(err))
@@ -37,8 +38,13 @@ func (u *UserRegister) Register(w http.ResponseWriter, r *http.Request) {
 
 	err = u.userRepo.AddUser(r.Context(), dUser)
 	if err != nil {
-		http.Error(w, "", http.StatusConflict)
-		return
+		if errors.Is(err, domain.ErrUniqueViolation) {
+			http.Error(w, "", http.StatusConflict)
+			return
+		} else {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
 	}
 	w.WriteHeader(http.StatusOK)
 

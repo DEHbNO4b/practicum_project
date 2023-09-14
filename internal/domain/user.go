@@ -27,3 +27,9 @@ func (u *User) Login() string {
 func (u *User) Password() string {
 	return u.password
 }
+func (u *User) SetLogin(l string) {
+	u.login = l
+}
+func (u *User) SetPassword(p string) {
+	u.password = p
+}
