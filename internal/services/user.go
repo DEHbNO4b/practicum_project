@@ -22,10 +22,8 @@ func NewUserService(repo UserRepository) UserService {
 	}
 }
 func (us *UserService) AddUser(ctx context.Context, user *domain.User) error {
-	hashedLogin := sha256.Sum256([]byte(user.Login()))
 	hashedPassword := sha256.Sum256([]byte(user.Password()))
-	base64.StdEncoding.EncodeToString(hashedLogin[:])
-	user.SetLogin(base64.StdEncoding.EncodeToString(hashedLogin[:]))
+	user.SetLogin(user.Login())
 	user.SetPassword(base64.StdEncoding.EncodeToString(hashedPassword[:]))
 	return us.userRepo.AddUser(ctx, user)
 }
