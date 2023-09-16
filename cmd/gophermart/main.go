@@ -9,8 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/DEHbNO4b/practicum_project/internal/handlers"
+	"github.com/DEHbNO4b/practicum_project/internal/handlers/order"
+	"github.com/DEHbNO4b/practicum_project/internal/handlers/user"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
+	"github.com/DEHbNO4b/practicum_project/internal/middleware/authorisation"
 	"github.com/DEHbNO4b/practicum_project/internal/repository/postgres"
 	"github.com/DEHbNO4b/practicum_project/internal/services"
 	"github.com/go-chi/chi/v5"
@@ -34,14 +36,19 @@ func run() error {
 		return err
 	}
 	userService := services.NewUserService(pdb)
-	uhandler := handlers.NewRegister(&userService)
-	r := chi.NewRouter()
-	r.Post(`/api/user/register`, uhandler.Register)
-	r.Post(`/api/user/login`, uhandler.Login)
-	r.Route()
+	uhandler := user.NewRegister(&userService)
+	gHandler := order.Gopher{}
+	router := chi.NewRouter()
+	router.Post(`/api/user/register`, uhandler.Register)
+	router.Post(`/api/user/login`, uhandler.Login)
+	router.Route(`/api/user`, func(r chi.Router) {
+		r.Use(authorisation.Auth)
+		r.Post("/orders", gHandler.Calculate)
+		r.Get("/orders", gHandler.GetOrder)
+	})
 	srv := &http.Server{
 		Addr:    cfg.Run_adress,
-		Handler: r,
+		Handler: router,
 	}
 	stopped := make(chan struct{})
 	go func() {
