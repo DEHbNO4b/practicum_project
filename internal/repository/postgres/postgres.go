@@ -62,3 +62,16 @@ func (pdb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
 	}
 	return nil
 }
+func (pdb *UserDB) GetUserPassword(ctx context.Context, login string) (string, error) {
+	row := pdb.DB.QueryRowContext(ctx, `select password from users  where login = $1;`, login)
+	var pas string
+	err := row.Scan(&pas)
+	if err == sql.ErrNoRows {
+		logger.Log.Error("no user in db with that login", zap.Error(err))
+		return "", domain.ErrNotFound
+	} else if err != nil {
+		logger.Log.Error("unable to  get user", zap.Error(err))
+		return "", err
+	}
+	return pas, nil
+}

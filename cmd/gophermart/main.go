@@ -12,7 +12,7 @@ import (
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/order"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/user"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
-	"github.com/DEHbNO4b/practicum_project/internal/middleware/authorisation"
+	"github.com/DEHbNO4b/practicum_project/internal/middleware/authentication"
 	"github.com/DEHbNO4b/practicum_project/internal/repository/postgres"
 	"github.com/DEHbNO4b/practicum_project/internal/services"
 	"github.com/go-chi/chi/v5"
@@ -42,7 +42,7 @@ func run() error {
 	router.Post(`/api/user/register`, uhandler.Register)
 	router.Post(`/api/user/login`, uhandler.Login)
 	router.Route(`/api/user`, func(r chi.Router) {
-		r.Use(authorisation.Auth)
+		r.Use(authentication.Auth)
 		r.Post("/orders", gHandler.Calculate)
 		r.Get("/orders", gHandler.GetOrder)
 	})
