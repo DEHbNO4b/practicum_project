@@ -8,8 +8,9 @@ import (
 )
 
 type Manager struct {
-	User  UserService
-	Order OrderService
+	User    UserService
+	Order   OrderService
+	Loyalty LoyaltyPointsService
 }
 
 func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
@@ -17,7 +18,8 @@ func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
 		return nil, errors.New("no store provided")
 	}
 	return &Manager{
-		User:  NewUserWebService(ctx, store),
-		Order: NewOrderWebService(ctx, store),
+		User:    NewUserWebService(ctx, store),
+		Order:   NewOrderWebService(ctx, store),
+		Loyalty: NewLoyaltyService(ctx),
 	}, nil
 }

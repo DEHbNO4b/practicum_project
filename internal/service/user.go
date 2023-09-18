@@ -26,13 +26,20 @@ func (svc *UserWebService) AddUser(ctx context.Context, user *domain.User) error
 	user.SetPassword(base64.StdEncoding.EncodeToString(hashedPassword[:]))
 	return svc.storage.User.AddUser(ctx, user)
 }
+func (svc *UserWebService) GetUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+	u, err := svc.storage.User.GetUser(ctx, user.Login())
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
 func (svc *UserWebService) CheckPassword(ctx context.Context, user *domain.User) (bool, error) {
 	hashedPassword := sha256.Sum256([]byte(user.Password()))
-	pass, err := svc.storage.User.GetUserPassword(ctx, user.Login())
+	u, err := svc.storage.User.GetUser(ctx, user.Login())
 	if err != nil {
 		return false, err
 	}
-	if base64.StdEncoding.EncodeToString(hashedPassword[:]) == pass {
+	if base64.StdEncoding.EncodeToString(hashedPassword[:]) == u.Password() {
 		return true, nil
 	} else {
 		return false, domain.ErrWrongLoginOrPassword

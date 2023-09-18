@@ -11,11 +11,12 @@ import (
 
 type UserRepository interface {
 	AddUser(ctx context.Context, user *domain.User) error
-	GetUserPassword(ctx context.Context, login string) (string, error)
+	GetUser(ctx context.Context, login string) (*domain.User, error)
 }
 type OrderRepository interface {
 	AddOrder(ctx context.Context, order *domain.Order) error
 	GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error)
+	GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error)
 }
 
 type Storage struct {

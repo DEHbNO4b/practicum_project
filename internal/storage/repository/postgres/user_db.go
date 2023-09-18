@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
@@ -49,7 +50,7 @@ func (udb *UserDB) Close() {
 }
 func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
 	user := userDomainToStore(u)
-	_, err := udb.DB.Exec(`insert into users (login,password) values($1,$2);`, user.Login, user.Password)
+	_, err := udb.DB.Exec(`insert into users (login,password,balance) values($1,$2,$3);`, user.Login, user.Password, user.Balance)
 	if err != nil {
 		logger.Log.Error("unable to add user", zap.Error(err))
 		var pgErr *pgconn.PgError
@@ -63,16 +64,24 @@ func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
 	}
 	return nil
 }
-func (udb *UserDB) GetUserPassword(ctx context.Context, login string) (string, error) {
-	row := udb.DB.QueryRowContext(ctx, `select password from users  where login = $1;`, login)
-	var pas string
-	err := row.Scan(&pas)
+func (udb *UserDB) GetUser(ctx context.Context, login string) (*domain.User, error) {
+	row := udb.DB.QueryRowContext(ctx, `select id,password,balance from users  where login = $1;`, login)
+	var (
+		id, balance int
+		password    string
+	)
+	err := row.Scan(&id, &password, &balance)
 	if err == sql.ErrNoRows {
 		logger.Log.Error("no user in db with that login", zap.Error(err))
-		return "", domain.ErrNotFound
+		return nil, domain.ErrNotFound
 	} else if err != nil {
 		logger.Log.Error("unable to  get user", zap.Error(err))
-		return "", err
+		return nil, err
 	}
-	return pas, nil
+	user, err := domain.NewUser(id, login, password, balance)
+	if err != nil {
+		logger.Log.Error("unable to create domain.User ", zap.Error(err))
+		return nil, fmt.Errorf("%s %w", "unabe to create domain.User", err)
+	}
+	return user, nil
 }

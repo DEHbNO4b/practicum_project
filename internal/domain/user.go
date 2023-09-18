@@ -11,14 +11,14 @@ type User struct {
 	balance  int
 }
 
-func NewUser(login, password string) (*User, error) {
+func NewUser(id int, login, password string, balance int) (*User, error) {
 	if login == "" {
 		return nil, fmt.Errorf("%w:login is required", ErrRequired)
 	}
 	if password == "" {
 		return nil, fmt.Errorf("%w:password is required", ErrRequired)
 	}
-	return &User{login: login, password: password}, nil
+	return &User{id: id, login: login, password: password, balance: balance}, nil
 }
 func (u *User) Id() int {
 	return u.id

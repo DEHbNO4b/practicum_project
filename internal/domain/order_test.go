@@ -3,11 +3,16 @@ package domain
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestNewOrder(t *testing.T) {
 	type args struct {
-		number int
+		number       int
+		status       string
+		accrual      int
+		upploaded_at time.Time
+		user_id      int
 	}
 	tests := []struct {
 		name    string
@@ -30,7 +35,7 @@ func TestNewOrder(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewOrder(tt.args.number)
+			got, err := NewOrder(tt.args.number, tt.args.status, tt.args.accrual, tt.args.upploaded_at, tt.args.user_id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewOrder() error = %v, wantErr %v", err, tt.wantErr)
 				return

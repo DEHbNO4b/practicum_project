@@ -53,35 +53,36 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 }
 func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Login handler")
-	user, err := readUser(r.Context(), r.Body)
+	requestUser, err := readUser(r.Context(), r.Body)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	dUser, err := userHandlerToDomain(user)
+	dUser, err := userHandlerToDomain(requestUser)
 	if err != nil {
 		logger.Log.Error("unable to create user", zap.Error(err))
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	checked, err := uc.services.User.CheckPassword(r.Context(), dUser)
-	if err != nil {
-		if errors.Is(err, domain.ErrWrongLoginOrPassword) {
-			http.Error(w, "", http.StatusUnauthorized)
-			return
-		}
-	}
-	if checked {
-		jwt, err := authorization.BuildJWTString()
-		if err != nil {
-			http.Error(w, "", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Authorization", jwt)
-		w.Write([]byte("password is correct"))
-	} else {
-		http.Error(w, "password not correct", http.StatusUnauthorized)
+	isCorrect, err := uc.services.User.CheckPassword(r.Context(), dUser)
+	if !isCorrect || errors.Is(err, domain.ErrWrongLoginOrPassword) {
+		http.Error(w, "", http.StatusUnauthorized)
+		return
+	} else if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
+	userFromDb, err := uc.services.User.GetUser(r.Context(), dUser)
+	if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	jwt, err := authorization.BuildJWTString(userFromDb.Id())
+	if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Authorization", jwt)
+	w.Write([]byte("password is correct"))
 
 }

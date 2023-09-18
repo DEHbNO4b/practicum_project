@@ -16,7 +16,7 @@ var createOrderTable string = `CREATE TABLE if not exists orders (
 	number integer unique,
 	status varchar(1000) ,
 	accrual integer,
-	upploadet_at time,
+	uploaded_at time,
 	user_id integer
 	);`
 
@@ -49,7 +49,7 @@ func (odb *OrderDB) Close() {
 }
 func (odb *OrderDB) AddOrder(ctx context.Context, order *domain.Order) error {
 	_, err := odb.DB.ExecContext(ctx, `INSERT INTO orders (number,status,accrual,upploadet_at,user_id)
-								VALUES ($1,$2,$3,$4,$5);`, order.Number(), order.Status(), order.Accrual(), order.UpploadedAt(), order.UserId())
+								VALUES ($1,$2,$3,$4,$5);`, order.Number(), order.Status(), order.Accrual(), time.Now(), order.UserId())
 	if err != nil {
 		logger.Log.Error("unable to insert order to db", zap.Error(err))
 		var pgErr *pgconn.PgError
@@ -82,7 +82,7 @@ func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order,
 			logger.Log.Error("unable to scan order parameters from db", zap.Error(err))
 			continue
 		}
-		o, err := domain.NewOrder(n)
+		o, err := domain.NewOrder(n, s, a, u, id)
 		if err != nil {
 			logger.Log.Error("unable to scan order parameters from db", zap.Error(err))
 			continue
@@ -94,4 +94,21 @@ func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order,
 		orders = append(orders, o)
 	}
 	return orders, nil
+}
+func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error) {
+	row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
+	var (
+		id, a int
+		s     string
+		u     time.Time
+	)
+	err := row.Scan(&number, &s, &a, &u, &id)
+	if err == sql.ErrNoRows {
+		return nil, domain.ErrNotFound
+	} else if err != nil {
+		logger.Log.Error("unable to scan order parameters from db", zap.Error(err))
+		return nil, err
+	}
+	o, _ := domain.NewOrder(number, s, a, u, id)
+	return o, nil
 }

@@ -6,11 +6,12 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
 	"go.uber.org/zap"
 )
 
-func readOrderNumber(r io.Reader) (int, error) {
+func readNumber(r io.Reader) (int, error) {
 
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(r)
@@ -25,4 +26,7 @@ func readOrderNumber(r io.Reader) (int, error) {
 
 	}
 	return number, nil
+}
+func orderHandlerToDomain(o Order) (*domain.Order, error) {
+	return domain.NewOrder(o.Number, o.Status, o.Accrual, o.Uploaded_at, o.User_id)
 }
