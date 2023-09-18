@@ -68,17 +68,20 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, domain.ErrWrongLoginOrPassword) {
 			http.Error(w, "", http.StatusUnauthorized)
+			return
 		}
 	}
 	if checked {
 		jwt, err := authorization.BuildJWTString()
 		if err != nil {
 			http.Error(w, "", http.StatusInternalServerError)
+			return
 		}
 		w.Header().Set("Authorization", jwt)
 		w.Write([]byte("password is correct"))
 	} else {
 		http.Error(w, "password not correct", http.StatusUnauthorized)
+		return
 	}
 
 }

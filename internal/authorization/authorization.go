@@ -14,13 +14,14 @@ type Claims struct {
 	UserID int
 }
 
-func BuildJWTString() (string, error) {
+func BuildJWTString(id int) (string, error) {
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — Claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			// когда создан токен
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TOKEN_EXP)),
 		},
+		UserID: id,
 		// собственное утверждение
 	})
 
