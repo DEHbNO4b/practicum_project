@@ -11,6 +11,7 @@ const SECRET_KEY = "bestsecretkey"
 
 type Claims struct {
 	jwt.RegisteredClaims
+	UserID int
 }
 
 func BuildJWTString() (string, error) {

@@ -3,14 +3,11 @@ package domain
 import (
 	"reflect"
 	"testing"
-
-	"github.com/gofrs/uuid"
 )
 
 func TestNewUser(t *testing.T) {
-	id, _ := uuid.NewV4()
 	type args struct {
-		id       uuid.UUID
+		id       int
 		login    string
 		password string
 	}
@@ -28,26 +25,20 @@ func TestNewUser(t *testing.T) {
 		},
 		{
 			name:    "negative test #2",
-			args:    args{id: id, login: "login"},
+			args:    args{login: "login"},
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name:    "negative test #3",
-			args:    args{password: "password", login: "login"},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "negative test #4",
-			args:    args{id: id, password: "password"},
+			args:    args{password: "password"},
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name:    "positive test #1",
-			args:    args{id: id, password: "password", login: "login"},
-			want:    &User{id: id, password: "password", login: "login"},
+			args:    args{password: "password", login: "login"},
+			want:    &User{password: "password", login: "login"},
 			wantErr: false,
 		},
 	}

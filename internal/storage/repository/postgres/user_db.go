@@ -14,10 +14,11 @@ import (
 // 'postgres://user:password@localhost:5432/database'
 // -d='postgres://practicum:practicum@localhost:5432/practicum'
 var createTable string = `CREATE TABLE if not exists users (
-	id serial primary key,
-	login varchar(1000) UNIQUE,
-	password varchar(1000)
-	);`
+							id serial primary key,
+							login varchar(1000) UNIQUE,
+							password varchar(1000),
+							balance integer
+							);`
 
 type UserDB struct {
 	DB *sql.DB
@@ -41,14 +42,14 @@ func NewUserDB(dsn string) (*UserDB, error) {
 	}
 	return &UserDB{DB: db}, nil
 }
-func (pdb *UserDB) Close() {
-	if pdb.DB != nil {
-		pdb.DB.Close()
+func (udb *UserDB) Close() {
+	if udb.DB != nil {
+		udb.DB.Close()
 	}
 }
-func (pdb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
+func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
 	user := userDomainToStore(u)
-	_, err := pdb.DB.Exec(`insert into users (login,password) values($1,$2);`, user.Login, user.Password)
+	_, err := udb.DB.Exec(`insert into users (login,password) values($1,$2);`, user.Login, user.Password)
 	if err != nil {
 		logger.Log.Error("unable to add user", zap.Error(err))
 		var pgErr *pgconn.PgError
@@ -62,8 +63,8 @@ func (pdb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
 	}
 	return nil
 }
-func (pdb *UserDB) GetUserPassword(ctx context.Context, login string) (string, error) {
-	row := pdb.DB.QueryRowContext(ctx, `select password from users  where login = $1;`, login)
+func (udb *UserDB) GetUserPassword(ctx context.Context, login string) (string, error) {
+	row := udb.DB.QueryRowContext(ctx, `select password from users  where login = $1;`, login)
 	var pas string
 	err := row.Scan(&pas)
 	if err == sql.ErrNoRows {

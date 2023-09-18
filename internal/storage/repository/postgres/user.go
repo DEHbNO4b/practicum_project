@@ -7,8 +7,10 @@ import (
 )
 
 type User struct {
+	Id       int
 	Login    string
 	Password string
+	Balance  int
 }
 
 func userStoreToDomain(u *User) (*domain.User, error) {

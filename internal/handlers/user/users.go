@@ -8,6 +8,7 @@ import (
 	"github.com/DEHbNO4b/practicum_project/internal/authorization"
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
+	"github.com/DEHbNO4b/practicum_project/internal/service"
 	"go.uber.org/zap"
 )
 
@@ -15,22 +16,22 @@ type UserService interface {
 	AddUser(ctx context.Context, user *domain.User) error
 	CheckPassword(ctx context.Context, user *domain.User) (bool, error)
 }
-type UserRegister struct {
-	userRepo UserService
+type UserController struct {
+	ctx      context.Context
+	services *service.Manager
 }
 
-func NewRegister(userRepo UserService) *UserRegister {
-	r := UserRegister{userRepo: userRepo}
+func NewUsers(ctx context.Context, services *service.Manager) *UserController {
+	r := UserController{ctx: ctx, services: services}
 	return &r
 }
-func (u *UserRegister) Register(w http.ResponseWriter, r *http.Request) {
+func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Register handler")
 	user, err := readUser(r.Context(), r.Body)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	logger.Log.Sugar().Infof("%+v", user)
 	dUser, err := userHandlerToDomain(user)
 	if err != nil {
 		logger.Log.Error("unable to create user", zap.Error(err))
@@ -38,7 +39,7 @@ func (u *UserRegister) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = u.userRepo.AddUser(r.Context(), dUser)
+	err = uc.services.User.AddUser(r.Context(), dUser)
 	if err != nil {
 		if errors.Is(err, domain.ErrUniqueViolation) {
 			http.Error(w, "", http.StatusConflict)
@@ -50,7 +51,7 @@ func (u *UserRegister) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
-func (u *UserRegister) Login(w http.ResponseWriter, r *http.Request) {
+func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Login handler")
 	user, err := readUser(r.Context(), r.Body)
 	if err != nil {
@@ -63,7 +64,7 @@ func (u *UserRegister) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	checked, err := u.userRepo.CheckPassword(r.Context(), dUser)
+	checked, err := uc.services.User.CheckPassword(r.Context(), dUser)
 	if err != nil {
 		if errors.Is(err, domain.ErrWrongLoginOrPassword) {
 			http.Error(w, "", http.StatusUnauthorized)
