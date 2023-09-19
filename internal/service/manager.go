@@ -14,6 +14,7 @@ type Manager struct {
 	Order   OrderService
 	Accrual AccrualPointsService
 	Balance BalanceService
+	Debit   DebitService
 }
 
 func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
@@ -25,8 +26,10 @@ func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
 		Order:   NewOrderWebService(ctx, store),
 		Accrual: NewAccrualService(ctx),
 		Balance: NewBalanceWebService(ctx, store),
+		Debit:   NewDebitWebService(ctx, store),
 	}, nil
 }
+
 func (m *Manager) AddOrder(ctx context.Context, o *domain.Order, claims authorization.Claims) error {
 	order, err := m.Order.GetOrderByNumber(ctx, o.Number())
 	if err != nil && !errors.Is(err, domain.ErrNotFound) {

@@ -12,6 +12,7 @@ import (
 
 	"github.com/DEHbNO4b/practicum_project/internal/config"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/balance"
+	"github.com/DEHbNO4b/practicum_project/internal/handlers/debit"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/order"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/user"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
@@ -58,6 +59,7 @@ func run() error {
 	uhandler := user.NewUsers(ctx, serviceManager)
 	oHandler := order.NewOrders(ctx, serviceManager)
 	bHandler := balance.NewBalance(ctx, serviceManager)
+	dHandler := debit.NewDebit(ctx, serviceManager)
 
 	//init router(chi)
 	router := chi.NewRouter()
@@ -68,6 +70,8 @@ func run() error {
 		r.Post("/orders", oHandler.Calculate)
 		r.Get("/orders", oHandler.GetOrders)
 		r.Get("/balance", bHandler.GetBalance)
+		r.Post("/balance/withdraw", dHandler.AddDebit)
+		r.Get("/withdrawals", dHandler.GetAllDebits)
 	})
 	srv := &http.Server{
 		Addr:         cfg.Run_adress,

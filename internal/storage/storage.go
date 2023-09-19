@@ -26,10 +26,15 @@ type BalanceRepository interface {
 	UpdateBalance(ctx context.Context, balance *domain.Balance) error
 	Close()
 }
+type DebitRepository interface {
+	AddDebit(ctx context.Context, d *domain.Debit) error
+	GetDebitsById(ctx context.Context, id int) ([]*domain.Debit, error)
+}
 type Storage struct {
 	User    UserRepository
 	Order   OrderRepository
 	Balance BalanceRepository
+	Debit   DebitRepository
 }
 
 func New(ctx context.Context) (*Storage, error) {
@@ -46,7 +51,11 @@ func New(ctx context.Context) (*Storage, error) {
 	}
 	bdb, err := postgres.NewBalanceDB(cfg.Database_url)
 	if err != nil {
-		return nil, fmt.Errorf("%s %w", "unable to create postgres balancer_DB", err)
+		return nil, fmt.Errorf("%s %w", "unable to create postgres balance_DB", err)
+	}
+	ddb, err := postgres.NewDebitDB(cfg.Database_url)
+	if err != nil {
+		return nil, fmt.Errorf("%s %w", "unable to create postgres debit_DB", err)
 	}
 	if udb != nil {
 		store.User = udb
@@ -56,6 +65,9 @@ func New(ctx context.Context) (*Storage, error) {
 	}
 	if bdb != nil {
 		store.Balance = bdb
+	}
+	if ddb != nil {
+		store.Debit = ddb
 	}
 	return store, nil
 }

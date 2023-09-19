@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/DEHbNO4b/practicum_project/internal/authorization"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
 	"github.com/DEHbNO4b/practicum_project/internal/service"
 	"github.com/go-chi/render"
@@ -19,15 +20,8 @@ func NewBalance(ctx context.Context, services *service.Manager) *BalanceControll
 }
 func (bc *BalanceController) GetBalance(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in get balance handler")
-	reqBalance := &Balance{}
-	err := render.DecodeJSON(r.Body, reqBalance)
-	if err != nil {
-		http.Error(w, "", http.StatusBadRequest)
-		return
-	}
-	// err:=bc.services.
-	dBalance := handlerBalanceToDomain(reqBalance)
-	b, err := bc.services.Balance.GetBalance(r.Context(), dBalance)
+	claims := authorization.GetClaims(r.Header.Get("Authorization"))
+	b, err := bc.services.Balance.GetBalance(r.Context(), claims.UserID)
 	if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)
 		return
