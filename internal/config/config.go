@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	Run_adress            string
-	Database_url          string
-	Accrual_system_adress string
+	RunAdress           string
+	DatabaseUrl         string
+	AccrualSystemAdress string
 }
 
 var (
@@ -19,18 +19,18 @@ var (
 
 func Get() *Config {
 	once.Do(func() {
-		flag.StringVar(&config.Run_adress, "a", "", "адрес и порт запуска сервера")
-		flag.StringVar(&config.Database_url, "d", "", "адрес подключения к базе данных")
-		flag.StringVar(&config.Accrual_system_adress, "r", "", "адрес системы рассчета начислений")
+		flag.StringVar(&config.RunAdress, "a", "", "адрес и порт запуска сервера")
+		flag.StringVar(&config.DatabaseUrl, "d", "", "адрес подключения к базе данных")
+		flag.StringVar(&config.AccrualSystemAdress, "r", "", "адрес системы рассчета начислений")
 		flag.Parse()
 		if addr := os.Getenv("RUN_ADDRESS"); addr != "" {
-			config.Run_adress = addr
+			config.RunAdress = addr
 		}
 		if addr := os.Getenv("DATABASE_URL"); addr != "" {
-			config.Database_url = addr
+			config.DatabaseUrl = addr
 		}
 		if addr := os.Getenv("ACCRUAL_SYSTEM_ADRESS"); addr != "" {
-			config.Accrual_system_adress = addr
+			config.AccrualSystemAdress = addr
 		}
 	})
 	return &config

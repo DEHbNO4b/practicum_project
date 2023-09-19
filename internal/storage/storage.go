@@ -41,19 +41,19 @@ func New(ctx context.Context) (*Storage, error) {
 	cfg := config.Get()
 	store := &Storage{}
 	//connect to user_db
-	udb, err := postgres.NewUserDB(cfg.Database_url)
+	udb, err := postgres.NewUserDB(cfg.DatabaseUrl)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres user_DB", err)
 	}
-	odb, err := postgres.NewOrderDB(cfg.Database_url)
+	odb, err := postgres.NewOrderDB(cfg.DatabaseUrl)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres order_DB", err)
 	}
-	bdb, err := postgres.NewBalanceDB(cfg.Database_url)
+	bdb, err := postgres.NewBalanceDB(cfg.DatabaseUrl)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres balance_DB", err)
 	}
-	ddb, err := postgres.NewDebitDB(cfg.Database_url)
+	ddb, err := postgres.NewDebitDB(cfg.DatabaseUrl)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres debit_DB", err)
 	}

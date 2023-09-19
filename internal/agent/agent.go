@@ -21,7 +21,7 @@ type AccrualAgent struct {
 func NewAccrualAgent(ctx context.Context) *AccrualAgent {
 	cfg := config.Get()
 	cl := http.Client{Timeout: 1 * time.Second}
-	a := &AccrualAgent{ctx: ctx, client: cl, url: cfg.Accrual_system_adress}
+	a := &AccrualAgent{ctx: ctx, client: cl, url: cfg.AccrualSystemAdress}
 	return a
 }
 func (a *AccrualAgent) GetAccrual(number int) (*domain.Order, error) {
@@ -37,10 +37,10 @@ func (a *AccrualAgent) GetAccrual(number int) (*domain.Order, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if err != nil {
-		logger.Log.Error("acrual server returned err", zap.Error(err))
-		return nil, err
-	}
+	// if err != nil {
+	// 	logger.Log.Error("acrual server returned err", zap.Error(err))
+	// 	return nil, err
+	// }
 	switch resp.StatusCode {
 	case 200:
 	case 204:

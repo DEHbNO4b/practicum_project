@@ -74,7 +74,7 @@ func run() error {
 		r.Get("/withdrawals", dHandler.GetAllDebits)
 	})
 	srv := &http.Server{
-		Addr:         cfg.Run_adress,
+		Addr:         cfg.RunAdress,
 		Handler:      router,
 		ReadTimeout:  1 * time.Minute,
 		WriteTimeout: 5 * time.Minute,
@@ -95,7 +95,7 @@ func run() error {
 	}()
 
 	//running server
-	logger.Log.Info("Running server", zap.String("adress", cfg.Run_adress))
+	logger.Log.Info("Running server", zap.String("adress", cfg.RunAdress))
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		logger.Log.Fatal("HTTP server ListenAndServe Error", zap.Error(err))
 	}
