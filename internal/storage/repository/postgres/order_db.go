@@ -48,7 +48,7 @@ func (odb *OrderDB) Close() {
 	}
 }
 func (odb *OrderDB) AddOrder(ctx context.Context, order *domain.Order) error {
-	_, err := odb.DB.ExecContext(ctx, `INSERT INTO orders (number,status,accrual,upploadet_at,user_id)
+	_, err := odb.DB.ExecContext(ctx, `INSERT INTO orders (number,status,accrual,uploaded_at,user_id)
 								VALUES ($1,$2,$3,$4,$5);`, order.Number(), order.Status(), order.Accrual(), time.Now(), order.UserId())
 	if err != nil {
 		logger.Log.Error("unable to insert order to db", zap.Error(err))
@@ -63,8 +63,17 @@ func (odb *OrderDB) AddOrder(ctx context.Context, order *domain.Order) error {
 	}
 	return nil
 }
+func (odb *OrderDB) UpdateOrder(ctx context.Context, order *domain.Order) error {
+	_, err := odb.DB.ExecContext(ctx, `UPDATE orders SET status=$1,accrual=$2 WHERE number=$3 `,
+		order.Status(), order.Accrual(), order.Number())
+	if err != nil {
+		logger.Log.Error("unable to update order", zap.Error(err))
+		return err
+	}
+	return nil
+}
 func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error) {
-	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,upploadet_at from orders where user_id=$1;`, id)
+	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,uploaded_at from orders where user_id=$1;`, id)
 	if err != nil {
 		logger.Log.Error("unable to loaf order params from db", zap.Error(err))
 		return nil, err

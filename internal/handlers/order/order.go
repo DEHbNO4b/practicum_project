@@ -32,7 +32,7 @@ func (oc *OrderController) Calculate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	err = oc.services.Order.AddOrder(r.Context(), order, claims)
+	err = oc.services.AddOrder(r.Context(), order, claims)
 	switch {
 	case errors.Is(err, domain.ErrAccepted):
 		http.Error(w, "", http.StatusAccepted)

@@ -6,7 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-const TOKEN_EXP = time.Minute * 1
+const TOKEN_EXP = time.Hour * 1
 const SECRET_KEY = "bestsecretkey"
 
 type Claims struct {

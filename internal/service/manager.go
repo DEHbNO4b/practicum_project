@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/DEHbNO4b/practicum_project/internal/authorization"
+	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/storage"
 )
 
@@ -22,4 +24,33 @@ func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
 		Order:   NewOrderWebService(ctx, store),
 		Loyalty: NewLoyaltyService(ctx),
 	}, nil
+}
+func (m *Manager) AddOrder(ctx context.Context, o *domain.Order, claims authorization.Claims) error {
+	order, err := m.Order.GetOrderByNumber(ctx, o.Number())
+	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+		//internal err
+		return err
+	}
+	if err == nil {
+		if order.UserId() == claims.UserID {
+			return domain.ErrAccepted
+		}
+		if order.UserId() != claims.UserID {
+			return domain.ErrHasBeenUpploaded
+		}
+	}
+	err = m.Order.AddOrder(ctx, o, claims)
+	if err != nil {
+		return err
+	}
+	lOrder, err := m.Loyalty.GetPointsForOrder(ctx, o)
+	if err != nil {
+		return err
+	}
+	err = m.Order.UpdateOrder(ctx, lOrder)
+	if err != nil {
+		//internal err
+		return err
+	}
+	return nil
 }

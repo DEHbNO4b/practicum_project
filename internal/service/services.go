@@ -14,7 +14,9 @@ type UserService interface {
 }
 type OrderService interface {
 	AddOrder(ctx context.Context, order *domain.Order, claims authorization.Claims) error
+	UpdateOrder(ctx context.Context, order *domain.Order) error
 	GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error)
+	GetOrderByNumber(ctx context.Context, id int) (*domain.Order, error)
 }
 type LoyaltyPointsService interface {
 	GetPointsForOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)

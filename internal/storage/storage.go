@@ -15,6 +15,7 @@ type UserRepository interface {
 }
 type OrderRepository interface {
 	AddOrder(ctx context.Context, order *domain.Order) error
+	UpdateOrder(ctx context.Context, order *domain.Order) error
 	GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error)
 	GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error)
 }
