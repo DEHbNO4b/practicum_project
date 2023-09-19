@@ -46,7 +46,7 @@ func (oc *OrderController) Calculate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-func (oc *OrderController) GetOrder(w http.ResponseWriter, r *http.Request) {
+func (oc *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in getOrders handler")
 	claims := authorization.GetClaims(r.Header.Get("Authorization"))
 	o, err := oc.services.Order.GetOrdersById(r.Context(), claims.UserID)

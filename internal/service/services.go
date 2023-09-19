@@ -21,3 +21,6 @@ type OrderService interface {
 type AccrualPointsService interface {
 	GetPointsForOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
 }
+type BalanceService interface {
+	GetBalance(ctx context.Context, balance *domain.Balance) (*domain.Balance, error)
+}

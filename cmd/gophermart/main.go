@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/DEHbNO4b/practicum_project/internal/config"
+	"github.com/DEHbNO4b/practicum_project/internal/handlers/balance"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/order"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/user"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
@@ -52,8 +53,11 @@ func run() error {
 		return fmt.Errorf("%s %w", "unable to create service manager", err)
 
 	}
+
+	//handlers
 	uhandler := user.NewUsers(ctx, serviceManager)
 	oHandler := order.NewOrders(ctx, serviceManager)
+	bHandler := balance.NewBalance(ctx, serviceManager)
 
 	//init router(chi)
 	router := chi.NewRouter()
@@ -62,7 +66,8 @@ func run() error {
 	router.Route(`/api/user`, func(r chi.Router) {
 		r.Use(authentication.Auth)
 		r.Post("/orders", oHandler.Calculate)
-		r.Get("/orders", oHandler.GetOrder)
+		r.Get("/orders", oHandler.GetOrders)
+		r.Get("/balance", bHandler.GetBalance)
 	})
 	srv := &http.Server{
 		Addr:         cfg.Run_adress,

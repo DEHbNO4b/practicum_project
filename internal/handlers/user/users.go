@@ -61,17 +61,26 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	dUser, err := userHandlerToDomain(requestUser)
 	if err != nil {
 		logger.Log.Error("unable to create user", zap.Error(err))
-		http.Error(w, "", http.StatusBadRequest)
-		return
-	}
-	isCorrect, err := uc.services.User.CheckPassword(r.Context(), dUser)
-	if !isCorrect || errors.Is(err, domain.ErrWrongLoginOrPassword) {
-		http.Error(w, "", http.StatusUnauthorized)
-		return
-	} else if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
+	_, err = uc.services.User.CheckPassword(r.Context(), dUser)
+
+	switch {
+	case errors.Is(err, domain.ErrNotFound):
+		http.Error(w, "wrong login or password", http.StatusUnauthorized)
+		return
+	case err != nil:
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	// if !isCorrect || errors.Is(err, domain.ErrWrongLoginOrPassword) {
+	// 	http.Error(w, "", http.StatusUnauthorized)
+	// 	return
+	// } else if err != nil {
+	// 	http.Error(w, "", http.StatusInternalServerError)
+	// 	return
+	// }
 	userFromDb, err := uc.services.User.GetUser(r.Context(), dUser)
 	if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)

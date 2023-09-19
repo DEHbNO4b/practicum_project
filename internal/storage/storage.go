@@ -22,8 +22,8 @@ type OrderRepository interface {
 	Close()
 }
 type BalanceRepository interface {
-	AddAccrual(ctx context.Context, id, accrual int) error
-	WriteOff(ctx context.Context, id, sum int) error
+	GetById(ctx context.Context, id int) (*domain.Balance, error)
+	UpdateBalance(ctx context.Context, balance *domain.Balance) error
 	Close()
 }
 type Storage struct {

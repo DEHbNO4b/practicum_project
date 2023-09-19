@@ -76,6 +76,9 @@ func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order,
 	logger.Log.Info("in get orders by id in postgres")
 	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,uploaded_at from orders where user_id=$1;`, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNilData
+		}
 		logger.Log.Error("unable to loaf order params from db", zap.Error(err))
 		return nil, err
 	}
