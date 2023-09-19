@@ -18,6 +18,6 @@ type OrderService interface {
 	GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error)
 	GetOrderByNumber(ctx context.Context, id int) (*domain.Order, error)
 }
-type LoyaltyPointsService interface {
+type AccrualPointsService interface {
 	GetPointsForOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
 }

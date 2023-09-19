@@ -16,7 +16,7 @@ var createOrderTable string = `CREATE TABLE if not exists orders (
 	number integer unique,
 	status varchar(1000) ,
 	accrual integer,
-	uploaded_at time,
+	uploaded_at timestamptz,
 	user_id integer
 	);`
 
@@ -73,6 +73,7 @@ func (odb *OrderDB) UpdateOrder(ctx context.Context, order *domain.Order) error 
 	return nil
 }
 func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error) {
+	logger.Log.Info("in get orders by id in postgres")
 	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,uploaded_at from orders where user_id=$1;`, id)
 	if err != nil {
 		logger.Log.Error("unable to loaf order params from db", zap.Error(err))
@@ -92,6 +93,7 @@ func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order,
 			continue
 		}
 		o, err := domain.NewOrder(n, s, a, u, id)
+
 		if err != nil {
 			logger.Log.Error("unable to scan order parameters from db", zap.Error(err))
 			continue
@@ -111,7 +113,7 @@ func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number int) (*domain.O
 		s     string
 		u     time.Time
 	)
-	err := row.Scan(&number, &s, &a, &u, &id)
+	err := row.Scan(&s, &a, &u, &id)
 	if err == sql.ErrNoRows {
 		return nil, domain.ErrNotFound
 	} else if err != nil {

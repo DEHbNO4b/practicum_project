@@ -12,7 +12,7 @@ import (
 type Manager struct {
 	User    UserService
 	Order   OrderService
-	Loyalty LoyaltyPointsService
+	Accrual AccrualPointsService
 }
 
 func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
@@ -22,7 +22,7 @@ func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
 	return &Manager{
 		User:    NewUserWebService(ctx, store),
 		Order:   NewOrderWebService(ctx, store),
-		Loyalty: NewLoyaltyService(ctx),
+		Accrual: NewAccrualService(ctx),
 	}, nil
 }
 func (m *Manager) AddOrder(ctx context.Context, o *domain.Order, claims authorization.Claims) error {
@@ -43,7 +43,7 @@ func (m *Manager) AddOrder(ctx context.Context, o *domain.Order, claims authoriz
 	if err != nil {
 		return err
 	}
-	lOrder, err := m.Loyalty.GetPointsForOrder(ctx, o)
+	lOrder, err := m.Accrual.GetPointsForOrder(ctx, o)
 	if err != nil {
 		return err
 	}

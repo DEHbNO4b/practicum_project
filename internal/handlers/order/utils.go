@@ -30,3 +30,12 @@ func readNumber(r io.Reader) (int, error) {
 func orderHandlerToDomain(o Order) (*domain.Order, error) {
 	return domain.NewOrder(o.Number, o.Status, o.Accrual, o.Uploaded_at, o.User_id)
 }
+func domainToHandlerOrder(o *domain.Order) *Order {
+	return &Order{
+		Number:      o.Number(),
+		Status:      o.Status(),
+		Accrual:     o.Accrual(),
+		Uploaded_at: o.UpploadedAt(),
+		User_id:     o.UserId(),
+	}
+}

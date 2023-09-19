@@ -44,8 +44,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	defer storage.Close() //close DB
 
-	// userService := services.NewUserService(pdb)
+	//init service manager
 	serviceManager, err := service.NewManager(ctx, storage)
 	if err != nil {
 		return fmt.Errorf("%s %w", "unable to create service manager", err)
@@ -53,6 +54,8 @@ func run() error {
 	}
 	uhandler := user.NewUsers(ctx, serviceManager)
 	oHandler := order.NewOrders(ctx, serviceManager)
+
+	//init router(chi)
 	router := chi.NewRouter()
 	router.Post(`/api/user/register`, uhandler.Register)
 	router.Post(`/api/user/login`, uhandler.Login)
