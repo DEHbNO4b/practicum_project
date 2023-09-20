@@ -48,21 +48,25 @@ func (udb *UserDB) Close() {
 		udb.DB.Close()
 	}
 }
-func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) error {
+func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) (int64, error) {
 	user := userDomainToStore(u)
-	_, err := udb.DB.Exec(`insert into users (login,password,balance) values($1,$2,$3);`, user.Login, user.Password, user.Balance)
+	res, err := udb.DB.Exec(`insert into users (login,password,balance) values($1,$2,$3);`, user.Login, user.Password, user.Balance)
 	if err != nil {
 		logger.Log.Error("unable to add user", zap.Error(err))
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == `23505` {
-				return domain.ErrUniqueViolation
+				return 0, domain.ErrUniqueViolation
 			} else {
-				return err
+				return 0, err
 			}
 		}
 	}
-	return nil
+	id, err := res.LastInsertId()
+	if err != nil {
+		return id, err
+	}
+	return id, nil
 }
 func (udb *UserDB) GetUser(ctx context.Context, login string) (*domain.User, error) {
 	row := udb.DB.QueryRowContext(ctx, `select id,password,balance from users  where login = $1;`, login)

@@ -42,7 +42,7 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = uc.services.User.AddUser(r.Context(), dUser)
+	id, err := uc.services.User.AddUser(r.Context(), dUser)
 	if err != nil {
 		if errors.Is(err, domain.ErrUniqueViolation) {
 			http.Error(w, "", http.StatusConflict)
@@ -52,21 +52,25 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	jwt, err := authorization.BuildJWTString(int(id))
+	if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Authorization", jwt)
+	w.Write([]byte("authorisation complited"))
 	w.WriteHeader(http.StatusOK)
 }
 func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Login handler")
-	requestUser, err := readUser(r.Context(), r.Body)
+	requestUser := User{}
+	err := render.DecodeJSON(r.Body, requestUser)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	dUser, err := userHandlerToDomain(requestUser)
-	if err != nil {
-		logger.Log.Error("unable to create user", zap.Error(err))
-		http.Error(w, "", http.StatusInternalServerError)
-		return
-	}
+	dUser, _ := userHandlerToDomain(requestUser)
+
 	_, err = uc.services.User.CheckPassword(r.Context(), dUser)
 
 	switch {
@@ -77,13 +81,7 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
-	// if !isCorrect || errors.Is(err, domain.ErrWrongLoginOrPassword) {
-	// 	http.Error(w, "", http.StatusUnauthorized)
-	// 	return
-	// } else if err != nil {
-	// 	http.Error(w, "", http.StatusInternalServerError)
-	// 	return
-	// }
+
 	userFromDB, err := uc.services.User.GetUser(r.Context(), dUser)
 	if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)

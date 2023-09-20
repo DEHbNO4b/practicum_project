@@ -8,7 +8,7 @@ import (
 )
 
 type UserService interface {
-	AddUser(ctx context.Context, user *domain.User) error
+	AddUser(ctx context.Context, user *domain.User) (int64, error)
 	GetUser(ctx context.Context, user *domain.User) (*domain.User, error)
 	CheckPassword(ctx context.Context, user *domain.User) (bool, error)
 }

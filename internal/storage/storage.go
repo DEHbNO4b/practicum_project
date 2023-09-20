@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepository interface {
-	AddUser(ctx context.Context, user *domain.User) error
+	AddUser(ctx context.Context, user *domain.User) (int64, error)
 	GetUser(ctx context.Context, login string) (*domain.User, error)
 	Close()
 }

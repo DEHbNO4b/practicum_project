@@ -20,7 +20,7 @@ func NewUserWebService(ctx context.Context, storage *storage.Storage) *UserWebSe
 		storage: storage,
 	}
 }
-func (svc *UserWebService) AddUser(ctx context.Context, user *domain.User) error {
+func (svc *UserWebService) AddUser(ctx context.Context, user *domain.User) (int64, error) {
 	hashedPassword := sha256.Sum256([]byte(user.Password()))
 	user.SetLogin(user.Login())
 	user.SetPassword(base64.StdEncoding.EncodeToString(hashedPassword[:]))
