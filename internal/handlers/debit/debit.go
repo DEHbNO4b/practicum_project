@@ -31,7 +31,7 @@ func (dc *DebitController) AddDebit(w http.ResponseWriter, r *http.Request) {
 	}
 	claims := authorization.GetClaims(r.Header.Get("Authorization"))
 	domainDebit := handlerDebitToDomain(&debit)
-	domainDebit.SetId(claims.UserID)
+	domainDebit.SetID(claims.UserID)
 	err = dc.services.Debit.AddDebit(r.Context(), domainDebit)
 	switch {
 	case errors.Is(err, domain.ErrIncorrectOrderNumber):

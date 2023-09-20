@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
@@ -49,7 +50,7 @@ func (odb *OrderDB) Close() {
 }
 func (odb *OrderDB) AddOrder(ctx context.Context, order *domain.Order) error {
 	_, err := odb.DB.ExecContext(ctx, `INSERT INTO orders (number,status,accrual,uploaded_at,user_id)
-								VALUES ($1,$2,$3,$4,$5);`, order.Number(), order.Status(), order.Accrual(), time.Now(), order.UserId())
+								VALUES ($1,$2,$3,$4,$5);`, order.Number(), order.Status(), order.Accrual(), time.Now(), order.UserID())
 	if err != nil {
 		logger.Log.Error("unable to insert order to db", zap.Error(err))
 		var pgErr *pgconn.PgError
@@ -72,7 +73,7 @@ func (odb *OrderDB) UpdateOrder(ctx context.Context, order *domain.Order) error 
 	}
 	return nil
 }
-func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error) {
+func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error) {
 	logger.Log.Info("in get orders by id in postgres")
 	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,uploaded_at from orders where user_id=$1;`, id)
 	if err != nil {
@@ -104,8 +105,13 @@ func (odb *OrderDB) GetOrdersById(ctx context.Context, id int) ([]*domain.Order,
 		o.SetAccrual(a)
 		o.SetStatus(s)
 		o.SetTime(u)
-		o.SetUserId(id)
+		o.SetUserID(id)
 		orders = append(orders, o)
+	}
+	err = rows.Err()
+	if err != nil {
+		logger.Log.Error("unable to get orders from db", zap.Error(err))
+		return nil, fmt.Errorf("%s %w", "unable to get orders from db", err)
 	}
 	return orders, nil
 }

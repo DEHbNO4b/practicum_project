@@ -37,10 +37,10 @@ func (m *Manager) AddOrder(ctx context.Context, o *domain.Order, claims authoriz
 		return err
 	}
 	if err == nil {
-		if order.UserId() == claims.UserID {
+		if order.UserID() == claims.UserID {
 			return domain.ErrAccepted
 		}
-		if order.UserId() != claims.UserID {
+		if order.UserID() != claims.UserID {
 			return domain.ErrHasBeenUpploaded
 		}
 	}

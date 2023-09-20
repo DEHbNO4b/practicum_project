@@ -26,6 +26,6 @@ func (svc *DebitWebService) AddDebit(ctx context.Context, debit *domain.Debit) e
 }
 func (svc *DebitWebService) GetDebitsById(ctx context.Context, id int) ([]*domain.Debit, error) {
 	logger.Log.Info("in GetDebitsById() at DebitWebService{}")
-	d, err := svc.storage.Debit.GetDebitsById(ctx, id)
+	d, err := svc.storage.Debit.GetDebitsByID(ctx, id)
 	return d, err
 }

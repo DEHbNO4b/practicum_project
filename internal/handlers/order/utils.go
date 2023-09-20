@@ -36,6 +36,6 @@ func domainToHandlerOrder(o *domain.Order) *Order {
 		Status:      o.Status(),
 		Accrual:     o.Accrual(),
 		Uploaded_at: o.UpploadedAt(),
-		User_id:     o.UserId(),
+		User_id:     o.UserID(),
 	}
 }

@@ -20,7 +20,7 @@ func NewUser(id int, login, password string, balance int) (*User, error) {
 	}
 	return &User{id: id, login: login, password: password, balance: balance}, nil
 }
-func (u *User) Id() int {
+func (u *User) ID() int {
 	return u.id
 }
 
@@ -34,7 +34,7 @@ func (u *User) Balance() int {
 	return u.balance
 }
 
-func (u *User) SetId(i int) {
+func (u *User) SetID(i int) {
 	u.id = i
 }
 func (u *User) SetLogin(l string) {

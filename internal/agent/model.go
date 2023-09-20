@@ -28,9 +28,9 @@ func (s status) String() string {
 }
 
 type Order struct {
-	Number      int       `json:"number"`
-	Status      string    `json:"status"`
-	Accrual     int       `json:"accrual"`
-	Uploaded_at time.Time `json:"-"`
-	User_id     int       `json:"-"`
+	Number     int       `json:"number"`
+	Status     string    `json:"status"`
+	Accrual    int       `json:"accrual"`
+	UploadedAt time.Time `json:"-"`
+	UserID     int       `json:"-"`
 }

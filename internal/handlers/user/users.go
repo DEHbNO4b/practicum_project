@@ -86,7 +86,7 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
-	jwt, err := authorization.BuildJWTString(userFromDb.Id())
+	jwt, err := authorization.BuildJWTString(userFromDb.ID())
 	if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)
 		return

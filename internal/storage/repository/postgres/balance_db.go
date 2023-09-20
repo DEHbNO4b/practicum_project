@@ -43,7 +43,7 @@ func (bdb *BalanceDB) Close() {
 		bdb.DB.Close()
 	}
 }
-func (bdb *BalanceDB) GetById(ctx context.Context, id int) (*domain.Balance, error) {
+func (bdb *BalanceDB) GetByID(ctx context.Context, id int) (*domain.Balance, error) {
 	row := bdb.DB.QueryRowContext(ctx, `select current,withdrawn from balance where id =$1`, id)
 	var c, w int
 	if err := row.Scan(&c, &w); err != nil {

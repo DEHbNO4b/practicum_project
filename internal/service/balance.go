@@ -19,6 +19,6 @@ func NewBalanceWebService(ctx context.Context, storage *storage.Storage) *Balanc
 	}
 }
 func (svc *BalanceWebService) GetBalance(ctx context.Context, id int) (*domain.Balance, error) {
-	b, err := svc.storage.Balance.GetById(ctx, id)
+	b, err := svc.storage.Balance.GetByID(ctx, id)
 	return b, err
 }

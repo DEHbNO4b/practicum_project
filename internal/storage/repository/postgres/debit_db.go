@@ -44,14 +44,14 @@ func NewDebitDB(dsn string) (*DebitDB, error) {
 
 func (ddb *DebitDB) AddDebit(ctx context.Context, d *domain.Debit) error {
 	_, err := ddb.DB.ExecContext(ctx, `insert into debits (number,sum,time,user_id)
-						values($1,$2,$3,$4)`, d.Order(), d.Sum(), time.Now(), d.UserId())
+						values($1,$2,$3,$4)`, d.Order(), d.Sum(), time.Now(), d.UserID())
 	if err != nil {
 		logger.Log.Error("unable to add debit to db", zap.Error(err))
 		return fmt.Errorf("%s %w", "unable to add debit to db", err)
 	}
 	return nil
 }
-func (ddb *DebitDB) GetDebitsById(ctx context.Context, id int) ([]*domain.Debit, error) {
+func (ddb *DebitDB) GetDebitsByID(ctx context.Context, id int) ([]*domain.Debit, error) {
 	rows, err := ddb.DB.QueryContext(ctx, `select number,sum,time from debits where id = $1;`, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -60,6 +60,7 @@ func (ddb *DebitDB) GetDebitsById(ctx context.Context, id int) ([]*domain.Debit,
 		logger.Log.Error("unable to get debits from db", zap.Error(err))
 		return nil, fmt.Errorf("%s %w", "unable to get debits from db", err)
 	}
+
 	defer rows.Close()
 	var (
 		o, s int
@@ -73,6 +74,11 @@ func (ddb *DebitDB) GetDebitsById(ctx context.Context, id int) ([]*domain.Debit,
 		}
 		d, _ := domain.NewDebit(o, s, t, id)
 		debits = append(debits, d)
+	}
+	err = rows.Err()
+	if err != nil {
+		logger.Log.Error("unable to get debits from db", zap.Error(err))
+		return nil, fmt.Errorf("%s %w", "unable to get debits from db", err)
 	}
 	return debits, nil
 }

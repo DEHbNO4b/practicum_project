@@ -10,14 +10,14 @@ type Order struct {
 	status      string
 	accrual     int
 	uploaded_at time.Time
-	user_id     int
+	userID      int
 }
 
 func NewOrder(number int, status string, accrual int, uploaded_at time.Time, user_id int) (*Order, error) {
 	if number == 0 {
 		return nil, fmt.Errorf("%w:number is required", ErrRequired)
 	}
-	return &Order{number: number, status: status, accrual: accrual, uploaded_at: uploaded_at, user_id: user_id}, nil
+	return &Order{number: number, status: status, accrual: accrual, uploaded_at: uploaded_at, userID: user_id}, nil
 }
 func (o *Order) Number() int {
 	return o.number
@@ -31,8 +31,8 @@ func (o *Order) Accrual() int {
 func (o *Order) UpploadedAt() time.Time {
 	return o.uploaded_at
 }
-func (o *Order) UserId() int {
-	return o.user_id
+func (o *Order) UserID() int {
+	return o.userID
 }
 func (o *Order) SetStatus(status string) {
 	o.status = status
@@ -43,6 +43,6 @@ func (o *Order) SetAccrual(accrual int) {
 func (o *Order) SetTime(time time.Time) {
 	o.uploaded_at = time
 }
-func (o *Order) SetUserId(id int) {
-	o.user_id = id
+func (o *Order) SetUserID(id int) {
+	o.userID = id
 }

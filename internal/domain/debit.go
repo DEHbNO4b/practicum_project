@@ -6,10 +6,10 @@ import (
 )
 
 type Debit struct {
-	order   int
-	sum     int
-	time    time.Time
-	user_id int
+	order  int
+	sum    int
+	time   time.Time
+	userID int
 }
 
 func NewDebit(o int, sum int, t time.Time, id int) (*Debit, error) {
@@ -17,10 +17,10 @@ func NewDebit(o int, sum int, t time.Time, id int) (*Debit, error) {
 		return nil, fmt.Errorf("%w: order number is required", ErrRequired)
 	}
 	return &Debit{
-		order:   o,
-		sum:     sum,
-		time:    t,
-		user_id: id,
+		order:  o,
+		sum:    sum,
+		time:   t,
+		userID: id,
 	}, nil
 }
 func (d *Debit) Order() int {
@@ -32,8 +32,8 @@ func (d *Debit) Sum() int {
 func (d *Debit) Time() time.Time {
 	return d.time
 }
-func (d *Debit) UserId() int {
-	return d.user_id
+func (d *Debit) UserID() int {
+	return d.userID
 }
 func (d *Debit) SetOrder(o int) {
 	d.order = o
@@ -44,6 +44,6 @@ func (d *Debit) SetSum(s int) {
 func (d *Debit) SetTime(t time.Time) {
 	d.time = t
 }
-func (d *Debit) SetId(id int) {
-	d.user_id = id
+func (d *Debit) SetID(id int) {
+	d.userID = id
 }

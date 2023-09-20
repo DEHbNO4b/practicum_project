@@ -25,7 +25,7 @@ func (svc *OrderWebService) AddOrder(ctx context.Context, o *domain.Order, claim
 	return nil
 }
 func (svc *OrderWebService) GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error) {
-	return svc.storage.Order.GetOrdersById(ctx, id)
+	return svc.storage.Order.GetOrdersByID(ctx, id)
 }
 func (svc *OrderWebService) GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error) {
 	return svc.storage.Order.GetOrderByNumber(ctx, number)

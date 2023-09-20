@@ -6,10 +6,10 @@ func domainBalanceToHandler(b *domain.Balance) *Balance {
 	return &Balance{
 		Current:   b.Current(),
 		Withdrawn: b.Withdrown(),
-		User_id:   b.User_id(),
+		UserID:    b.User_id(),
 	}
 }
 func handlerBalanceToDomain(b *Balance) *domain.Balance {
-	balance, _ := domain.NewBalance(b.Current, b.Withdrawn, b.User_id)
+	balance, _ := domain.NewBalance(b.Current, b.Withdrawn, b.UserID)
 	return balance
 }

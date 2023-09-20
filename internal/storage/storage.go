@@ -17,18 +17,18 @@ type UserRepository interface {
 type OrderRepository interface {
 	AddOrder(ctx context.Context, order *domain.Order) error
 	UpdateOrder(ctx context.Context, order *domain.Order) error
-	GetOrdersById(ctx context.Context, id int) ([]*domain.Order, error)
+	GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error)
 	GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error)
 	Close()
 }
 type BalanceRepository interface {
-	GetById(ctx context.Context, id int) (*domain.Balance, error)
+	GetByID(ctx context.Context, id int) (*domain.Balance, error)
 	UpdateBalance(ctx context.Context, balance *domain.Balance) error
 	Close()
 }
 type DebitRepository interface {
 	AddDebit(ctx context.Context, d *domain.Debit) error
-	GetDebitsById(ctx context.Context, id int) ([]*domain.Debit, error)
+	GetDebitsByID(ctx context.Context, id int) ([]*domain.Debit, error)
 }
 type Storage struct {
 	User    UserRepository
@@ -41,19 +41,19 @@ func New(ctx context.Context) (*Storage, error) {
 	cfg := config.Get()
 	store := &Storage{}
 	//connect to user_db
-	udb, err := postgres.NewUserDB(cfg.DatabaseUrl)
+	udb, err := postgres.NewUserDB(cfg.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres user_DB", err)
 	}
-	odb, err := postgres.NewOrderDB(cfg.DatabaseUrl)
+	odb, err := postgres.NewOrderDB(cfg.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres order_DB", err)
 	}
-	bdb, err := postgres.NewBalanceDB(cfg.DatabaseUrl)
+	bdb, err := postgres.NewBalanceDB(cfg.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres balance_DB", err)
 	}
-	ddb, err := postgres.NewDebitDB(cfg.DatabaseUrl)
+	ddb, err := postgres.NewDebitDB(cfg.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("%s %w", "unable to create postgres debit_DB", err)
 	}
