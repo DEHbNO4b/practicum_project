@@ -9,6 +9,7 @@ import (
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
 	"github.com/DEHbNO4b/practicum_project/internal/service"
+	"github.com/go-chi/render"
 	"go.uber.org/zap"
 )
 
@@ -27,9 +28,11 @@ func NewUsers(ctx context.Context, services *service.Manager) *UserController {
 }
 func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Register handler")
-	user, err := readUser(r.Context(), r.Body)
+	// user, err := readUser(r.Context(), r.Body)
+	user := User{}
+	err := render.DecodeJSON(r.Body, user)
 	if err != nil {
-		http.Error(w, "", http.StatusBadRequest)
+		http.Error(w, "", http.StatusBadRequest) //400
 		return
 	}
 	dUser, err := userHandlerToDomain(user)

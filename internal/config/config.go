@@ -26,10 +26,10 @@ func Get() *Config {
 		if addr := os.Getenv("RUN_ADDRESS"); addr != "" {
 			config.RunAdress = addr
 		}
-		if addr := os.Getenv("DATABASE_URL"); addr != "" {
+		if addr := os.Getenv("DATABASE_URI"); addr != "" {
 			config.DatabaseURL = addr
 		}
-		if addr := os.Getenv("ACCRUAL_SYSTEM_ADRESS"); addr != "" {
+		if addr := os.Getenv("ACCRUAL_SYSTEM_ADDRESS"); addr != "" {
 			config.AccrualSystemAdress = addr
 		}
 	})
