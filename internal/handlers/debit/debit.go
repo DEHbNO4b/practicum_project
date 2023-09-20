@@ -29,7 +29,11 @@ func (dc *DebitController) AddDebit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	claims := authorization.GetClaims(r.Header.Get("Authorization"))
+	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
+	if err != nil {
+		http.Error(w, "unable to read token", http.StatusUnauthorized)
+		return
+	}
 	domainDebit := handlerDebitToDomain(&debit)
 	domainDebit.SetID(claims.UserID)
 	err = dc.services.Debit.AddDebit(r.Context(), domainDebit)
@@ -49,7 +53,11 @@ func (dc *DebitController) AddDebit(w http.ResponseWriter, r *http.Request) {
 }
 func (dc *DebitController) GetAllDebits(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in add debit handler")
-	claims := authorization.GetClaims(r.Header.Get("Authorization"))
+	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
+	if err != nil {
+		http.Error(w, "unable to read token", http.StatusUnauthorized)
+		return
+	}
 	debits, err := dc.services.Debit.GetDebitsByID(r.Context(), claims.UserID)
 	switch {
 	case errors.Is(err, domain.ErrNotFound):

@@ -116,6 +116,7 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 	return orders, nil
 }
 func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error) {
+	// row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	var (
 		id, a int

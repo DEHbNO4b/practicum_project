@@ -20,36 +20,46 @@ type OrderController struct {
 func NewOrders(ctx context.Context, services *service.Manager) *OrderController {
 	return &OrderController{ctx: ctx, services: services}
 }
-func (oc *OrderController) Calculate(w http.ResponseWriter, r *http.Request) {
+func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Calculate handler")
 	number, err := readNumber(r.Body)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
-	claims := authorization.GetClaims(r.Header.Get("Authorization"))
+	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
+	if err != nil {
+		http.Error(w, "unable to read token", http.StatusUnauthorized)
+		return
+	}
 	order, _ := orderHandlerToDomain(Order{Number: number, UserID: claims.UserID})
 	// if err != nil {
 	// 	http.Error(w, "", http.StatusBadRequest)
 	// 	return
 	// }
-	err = oc.services.AddOrder(r.Context(), order, claims)
+	err = oc.services.Order.AddOrder(r.Context(), order, claims.UserID)
 	switch {
 	case errors.Is(err, domain.ErrAccepted):
-		http.Error(w, "", http.StatusAccepted)
+		http.Error(w, "", http.StatusAccepted) //status 202
 		return
-	case errors.Is(err, domain.ErrHasBeenUpploaded):
-		http.Error(w, "", http.StatusConflict)
+	case errors.Is(err, domain.ErrConflict):
+		http.Error(w, "", http.StatusConflict) //status 409
 		return
 	case err != nil:
-		http.Error(w, "", http.StatusInternalServerError)
+		http.Error(w, "", http.StatusInternalServerError) //status 500
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 }
 func (oc *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in getOrders handler")
-	claims := authorization.GetClaims(r.Header.Get("Authorization"))
+	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
+	if err != nil {
+		http.Error(w, "unable to read token", http.StatusUnauthorized)
+		return
+	}
 	o, err := oc.services.Order.GetOrdersByID(r.Context(), claims.UserID)
+
 	orders := make([]*Order, 0, 20)
 	for _, el := range o {
 		hOrder := domainToHandlerOrder(el)

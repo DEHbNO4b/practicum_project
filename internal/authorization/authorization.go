@@ -1,6 +1,8 @@
 package authorization
 
 import (
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -35,14 +37,19 @@ func BuildJWTString(id int) (string, error) {
 	return tokenString, nil
 }
 
-func GetClaims(tokenString string) Claims {
+func GetClaims(token string) (Claims, error) {
 	// создаём экземпляр структуры с утверждениями
 	claims := Claims{}
+	s := strings.Fields(token)
+
+	if len(s) != 2 {
+		return claims, errors.New("wrong authorization field")
+	}
 	// парсим из строки токена tokenString в структуру claims
-	jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
+	jwt.ParseWithClaims(s[1], &claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(SecretKey), nil
 	})
 
 	// возвращаем ID пользователя в читаемом виде
-	return claims
+	return claims, nil
 }

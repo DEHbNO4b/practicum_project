@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"github.com/DEHbNO4b/practicum_project/internal/authorization"
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
 )
 
@@ -13,7 +12,7 @@ type UserService interface {
 	CheckPassword(ctx context.Context, user *domain.User) (bool, error)
 }
 type OrderService interface {
-	AddOrder(ctx context.Context, order *domain.Order, claims authorization.Claims) error
+	AddOrder(ctx context.Context, order *domain.Order, id int) error
 	UpdateOrder(ctx context.Context, order *domain.Order) error
 	GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error)
 	GetOrderByNumber(ctx context.Context, id int) (*domain.Order, error)

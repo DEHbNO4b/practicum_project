@@ -20,7 +20,11 @@ func NewBalance(ctx context.Context, services *service.Manager) *BalanceControll
 }
 func (bc *BalanceController) GetBalance(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in get balance handler")
-	claims := authorization.GetClaims(r.Header.Get("Authorization"))
+	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
+	if err != nil {
+		http.Error(w, "unable to read token", http.StatusUnauthorized)
+		return
+	}
 	b, err := bc.services.Balance.GetBalance(r.Context(), claims.UserID)
 	if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)

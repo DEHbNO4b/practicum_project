@@ -10,9 +10,9 @@ var (
 	ErrUniqueViolation      = errors.New("unique violation")
 
 	//order errors
-	ErrAccepted         = errors.New("accepted for processing")
-	ErrHasBeenUpploaded = errors.New("has already been uploaded by another user")
-	ErrNilData          = errors.New("nil data")
+	ErrAccepted = errors.New("accepted for processing")
+	ErrConflict = errors.New("has already been uploaded by another user")
+	ErrNilData  = errors.New("nil data")
 
 	//balance errors
 	ErrNotEnaugh            = errors.New("there are not enough funds on the account")

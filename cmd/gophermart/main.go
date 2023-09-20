@@ -66,7 +66,7 @@ func run() error {
 	router.Post(`/api/user/login`, uhandler.Login)
 	router.Route(`/api/user`, func(r chi.Router) {
 		r.Use(authentication.Auth)
-		r.Post("/orders", oHandler.Calculate)
+		r.Post("/orders", oHandler.LoadOrder)
 		r.Get("/orders", oHandler.GetOrders)
 		r.Get("/balance", bHandler.GetBalance)
 		r.Post("/balance/withdraw", dHandler.AddDebit)
