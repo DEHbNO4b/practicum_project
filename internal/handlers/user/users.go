@@ -30,9 +30,9 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Register handler")
 	// user, err := readUser(r.Context(), r.Body)
 	user := User{}
-	err := render.DecodeJSON(r.Body, user)
+	err := render.DecodeJSON(r.Body, &user)
 	if err != nil {
-		http.Error(w, "", http.StatusBadRequest) //status 400
+		http.Error(w, "unable to decode json from r.Body", http.StatusBadRequest) //status 400
 		return
 	}
 	dUser, err := userHandlerToDomain(user)
@@ -48,13 +48,14 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "", http.StatusConflict) //status 409
 			return
 		} else {
-			http.Error(w, "", http.StatusInternalServerError) //status 500
+			logger.Log.Error(err.Error())
+			http.Error(w, "eror from storage db", http.StatusInternalServerError) //status 500
 			return
 		}
 	}
 	jwt, err := authorization.BuildJWTString(int(id))
 	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
+		http.Error(w, "unable to create jwt token", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Authorization", "Bearer "+jwt)
@@ -64,7 +65,7 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Login handler")
 	requestUser := User{}
-	err := render.DecodeJSON(r.Body, requestUser)
+	err := render.DecodeJSON(r.Body, &requestUser)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return

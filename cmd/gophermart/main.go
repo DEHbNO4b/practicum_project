@@ -46,16 +46,15 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	defer storage.Close() //close DB
+	defer storage.Close() //close DBs
 
-	//init service manager
+	//init service manager(with storage inside)
 	serviceManager, err := service.NewManager(ctx, storage)
 	if err != nil {
 		return fmt.Errorf("%s %w", "unable to create service manager", err)
-
 	}
 
-	//handlers
+	//create handlers(with serviceManager inside)
 	uhandler := user.NewUsers(ctx, serviceManager)
 	oHandler := order.NewOrders(ctx, serviceManager)
 	bHandler := balance.NewBalance(ctx, serviceManager)
