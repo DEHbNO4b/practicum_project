@@ -21,6 +21,6 @@ func (b *Balance) Current() int {
 func (b *Balance) Withdrown() int {
 	return b.withdrown
 }
-func (b *Balance) User_id() int {
+func (b *Balance) UserID() int {
 	return b.userID
 }

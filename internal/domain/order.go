@@ -13,11 +13,11 @@ type Order struct {
 	userID     int
 }
 
-func NewOrder(number int, status string, accrual int, uploaded_at time.Time, user_id int) (*Order, error) {
+func NewOrder(number int, status string, accrual int, uploadedAt time.Time, userID int) (*Order, error) {
 	if number == 0 {
 		return nil, fmt.Errorf("%w:number is required", ErrRequired)
 	}
-	return &Order{number: number, status: status, accrual: accrual, uploadedAt: uploaded_at, userID: user_id}, nil
+	return &Order{number: number, status: status, accrual: accrual, uploadedAt: uploadedAt, userID: userID}, nil
 }
 func (o *Order) Number() int {
 	return o.number

@@ -6,7 +6,7 @@ func domainBalanceToHandler(b *domain.Balance) *Balance {
 	return &Balance{
 		Current:   b.Current(),
 		Withdrawn: b.Withdrown(),
-		UserID:    b.User_id(),
+		UserID:    b.UserID(),
 	}
 }
 func handlerBalanceToDomain(b *Balance) *domain.Balance {
