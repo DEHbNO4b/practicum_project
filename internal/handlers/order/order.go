@@ -30,18 +30,18 @@ func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
 	if err != nil {
-		http.Error(w, "unable to read token", http.StatusUnauthorized)
+		http.Error(w, "unable to read token", http.StatusUnauthorized) //status 401
 		return
 	}
-	order, _ := orderHandlerToDomain(Order{Number: string(number), UserID: claims.UserID})
-	// if err != nil {
-	// 	http.Error(w, "", http.StatusBadRequest)
-	// 	return
-	// }
+	order, err := orderHandlerToDomain(Order{Number: string(number), Status: "NEW", UserID: claims.UserID})
+	if err != nil {
+		http.Error(w, "", http.StatusUnprocessableEntity) //status 422
+		return
+	}
 	err = oc.services.Order.AddOrder(r.Context(), order, claims.UserID)
 	switch {
 	case errors.Is(err, domain.ErrAccepted):
-		http.Error(w, "", http.StatusOK) //status 202
+		http.Error(w, "", http.StatusOK) //status 200
 		return
 	case errors.Is(err, domain.ErrConflict):
 		http.Error(w, "", http.StatusConflict) //status 409
@@ -50,7 +50,7 @@ func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusInternalServerError) //status 500
 		return
 	}
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusAccepted) //status 202
 }
 func (oc *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in getOrders handler")
