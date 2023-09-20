@@ -28,11 +28,11 @@ func (oc *OrderController) Calculate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	claims := authorization.GetClaims(r.Header.Get("Authorization"))
-	order, _ := orderHandlerToDomain(Order{Number: number, User_id: claims.UserID})
-	if err != nil {
-		http.Error(w, "", http.StatusBadRequest)
-		return
-	}
+	order, _ := orderHandlerToDomain(Order{Number: number, UserID: claims.UserID})
+	// if err != nil {
+	// 	http.Error(w, "", http.StatusBadRequest)
+	// 	return
+	// }
 	err = oc.services.AddOrder(r.Context(), order, claims)
 	switch {
 	case errors.Is(err, domain.ErrAccepted):
@@ -49,7 +49,7 @@ func (oc *OrderController) Calculate(w http.ResponseWriter, r *http.Request) {
 func (oc *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in getOrders handler")
 	claims := authorization.GetClaims(r.Header.Get("Authorization"))
-	o, err := oc.services.Order.GetOrdersById(r.Context(), claims.UserID)
+	o, err := oc.services.Order.GetOrdersByID(r.Context(), claims.UserID)
 	orders := make([]*Order, 0, 20)
 	for _, el := range o {
 		hOrder := domainToHandlerOrder(el)

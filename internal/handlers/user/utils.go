@@ -32,5 +32,5 @@ func readUser(ctx context.Context, r io.Reader) (User, error) {
 	return user, nil
 }
 func userHandlerToDomain(user User) (*domain.User, error) {
-	return domain.NewUser(user.Id, user.Login, user.Password, user.Balance)
+	return domain.NewUser(user.ID, user.Login, user.Password, user.Balance)
 }

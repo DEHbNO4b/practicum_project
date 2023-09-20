@@ -50,7 +50,7 @@ func (dc *DebitController) AddDebit(w http.ResponseWriter, r *http.Request) {
 func (dc *DebitController) GetAllDebits(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in add debit handler")
 	claims := authorization.GetClaims(r.Header.Get("Authorization"))
-	debits, err := dc.services.Debit.GetDebitsById(r.Context(), claims.UserID)
+	debits, err := dc.services.Debit.GetDebitsByID(r.Context(), claims.UserID)
 	switch {
 	case errors.Is(err, domain.ErrNotFound):
 		http.Error(w, "", http.StatusNoContent) //204
