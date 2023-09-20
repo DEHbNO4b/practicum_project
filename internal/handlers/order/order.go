@@ -61,22 +61,20 @@ func (oc *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	}
 	o, err := oc.services.Order.GetOrdersByID(r.Context(), claims.UserID)
 
+	switch {
+	case errors.Is(err, domain.ErrNotFound):
+		http.Error(w, "", http.StatusNoContent) //code 204
+	case err != nil:
+		http.Error(w, "", http.StatusInternalServerError) //code 500
+		return
+
+	}
+
 	orders := make([]*Order, 0, 20)
 	for _, el := range o {
 		hOrder := domainToHandlerOrder(el)
 		orders = append(orders, hOrder)
 	}
-
-	switch {
-	case err == nil: //code200
-		render.JSON(w, r, orders)
-
-	case errors.Is(err, domain.ErrNilData):
-		http.Error(w, "", http.StatusNoContent) //code 204
-	default:
-		http.Error(w, "", http.StatusInternalServerError) //code 500
-		return
-
-	}
+	render.JSON(w, r, orders) //code200
 
 }

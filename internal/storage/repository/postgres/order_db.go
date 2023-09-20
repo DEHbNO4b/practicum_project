@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
@@ -77,13 +77,9 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 	logger.Log.Info("in get orders by id in postgres")
 	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,uploaded_at from orders where user_id=$1;`, id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, domain.ErrNilData
-		}
-		logger.Log.Error("unable to loaf order params from db", zap.Error(err))
+		logger.Log.Error("unable to load order params from db", zap.Error(err))
 		return nil, err
 	}
-	defer rows.Close()
 	var (
 		a    int
 		n, s string
@@ -94,24 +90,25 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 		err := rows.Scan(&n, &s, &a, &u)
 		if err != nil {
 			logger.Log.Error("unable to scan order parameters from db", zap.Error(err))
-			continue
+			return nil, err
 		}
 		o, err := domain.NewOrder(n, s, a, u, id)
-
 		if err != nil {
-			logger.Log.Error("unable to scan order parameters from db", zap.Error(err))
-			continue
+			logger.Log.Error("unable to create new order", zap.Error(err))
+			return nil, err
 		}
-		o.SetAccrual(a)
-		o.SetStatus(s)
-		o.SetTime(u)
-		o.SetUserID(id)
 		orders = append(orders, o)
 	}
-	err = rows.Err()
-	if err != nil {
-		logger.Log.Error("unable to get orders from db", zap.Error(err))
-		return nil, fmt.Errorf("%s %w", "unable to get orders from db", err)
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNotFound
+		}
+		logger.Log.Info("nil order data for user:", zap.String("id", strconv.Itoa(id)))
+		return nil, domain.ErrNilData
+	}
+	if len(orders) == 0 {
+		return nil, domain.ErrNotFound
 	}
 	return orders, nil
 }
