@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/DEHbNO4b/practicum_project/internal/authorization"
@@ -12,7 +13,8 @@ func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.Log.Info("in auth middleware")
 		jwt := r.Header.Get("Authorization")
-		if jwt == "" {
+		jwt, found := strings.CutPrefix(jwt, "Bearer ")
+		if !found || jwt == "" {
 			http.Error(w, "not allowed", http.StatusUnauthorized)
 			return
 		}

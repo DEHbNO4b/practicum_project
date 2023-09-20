@@ -32,23 +32,23 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 	user := User{}
 	err := render.DecodeJSON(r.Body, user)
 	if err != nil {
-		http.Error(w, "", http.StatusBadRequest) //400
+		http.Error(w, "", http.StatusBadRequest) //status 400
 		return
 	}
 	dUser, err := userHandlerToDomain(user)
 	if err != nil {
 		logger.Log.Error("unable to create user", zap.Error(err))
-		http.Error(w, "", http.StatusBadRequest)
+		http.Error(w, "", http.StatusBadRequest) //status 400
 		return
 	}
 
 	id, err := uc.services.User.AddUser(r.Context(), dUser)
 	if err != nil {
 		if errors.Is(err, domain.ErrUniqueViolation) {
-			http.Error(w, "", http.StatusConflict)
+			http.Error(w, "", http.StatusConflict) //status 409
 			return
 		} else {
-			http.Error(w, "", http.StatusInternalServerError)
+			http.Error(w, "", http.StatusInternalServerError) //status 500
 			return
 		}
 	}
@@ -57,7 +57,7 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Authorization", jwt)
+	w.Header().Set("Authorization", "Bearer "+jwt)
 	w.Write([]byte("authorisation complited"))
 	w.WriteHeader(http.StatusOK)
 }
@@ -92,7 +92,7 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Authorization", jwt)
+	w.Header().Set("Authorization", "Bearer "+jwt)
 	w.Write([]byte("password is correct"))
 
 }
