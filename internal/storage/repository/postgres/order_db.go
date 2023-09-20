@@ -14,7 +14,7 @@ import (
 )
 
 var createOrderTable string = `CREATE TABLE if not exists orders (
-	number integer unique,
+	number varchar(1000),
 	status varchar(1000) ,
 	accrual integer,
 	uploaded_at timestamptz,
@@ -85,8 +85,8 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 	}
 	defer rows.Close()
 	var (
-		n, a int
-		s    string
+		a    int
+		n, s string
 		u    time.Time
 	)
 	orders := make([]*domain.Order, 0, 20)
@@ -115,7 +115,7 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 	}
 	return orders, nil
 }
-func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error) {
+func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number string) (*domain.Order, error) {
 	// row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	var (

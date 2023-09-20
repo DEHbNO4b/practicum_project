@@ -8,7 +8,7 @@ import (
 
 func TestNewOrder(t *testing.T) {
 	type args struct {
-		number      int
+		number      string
 		status      string
 		accrual     int
 		upploadedAt time.Time
@@ -21,15 +21,21 @@ func TestNewOrder(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "negative test",
+			name:    "negative test #1",
 			args:    args{},
 			want:    nil,
 			wantErr: true,
 		},
 		{
+			name:    "negative test #2",
+			args:    args{number: "8463473g"},
+			want:    nil,
+			wantErr: true,
+		},
+		{
 			name:    "positive test",
-			args:    args{number: 1},
-			want:    &Order{number: 1},
+			args:    args{number: "1235235"},
+			want:    &Order{number: "1235235"},
 			wantErr: false,
 		},
 	}

@@ -15,7 +15,7 @@ type OrderService interface {
 	AddOrder(ctx context.Context, order *domain.Order, id int) error
 	UpdateOrder(ctx context.Context, order *domain.Order) error
 	GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error)
-	GetOrderByNumber(ctx context.Context, id int) (*domain.Order, error)
+	GetOrderByNumber(ctx context.Context, number string) (*domain.Order, error)
 }
 type AccrualPointsService interface {
 	GetPointsForOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)

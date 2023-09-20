@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 
 	"github.com/DEHbNO4b/practicum_project/internal/authorization"
@@ -22,7 +23,7 @@ func NewOrders(ctx context.Context, services *service.Manager) *OrderController 
 }
 func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in Calculate handler")
-	number, err := readNumber(r.Body)
+	number, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return
@@ -32,7 +33,7 @@ func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unable to read token", http.StatusUnauthorized)
 		return
 	}
-	order, _ := orderHandlerToDomain(Order{Number: number, UserID: claims.UserID})
+	order, _ := orderHandlerToDomain(Order{Number: string(number), UserID: claims.UserID})
 	// if err != nil {
 	// 	http.Error(w, "", http.StatusBadRequest)
 	// 	return

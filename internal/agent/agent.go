@@ -3,7 +3,6 @@ package agent
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/DEHbNO4b/practicum_project/internal/config"
@@ -24,10 +23,9 @@ func NewAccrualAgent(ctx context.Context) *AccrualAgent {
 	a := &AccrualAgent{ctx: ctx, client: cl, url: cfg.AccrualSystemAdress}
 	return a
 }
-func (a *AccrualAgent) GetAccrual(number int) (*domain.Order, error) {
+func (a *AccrualAgent) GetAccrual(number string) (*domain.Order, error) {
 
-	num := strconv.Itoa(number)
-	req, err := http.NewRequest(http.MethodGet, a.url+`/api/orders/`+num, nil)
+	req, err := http.NewRequest(http.MethodGet, a.url+`/api/orders/`+number, nil)
 	if err != nil {
 		logger.Log.Error("acrual server request err", zap.Error(err))
 		return nil, err

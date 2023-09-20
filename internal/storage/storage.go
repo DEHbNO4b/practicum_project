@@ -18,7 +18,7 @@ type OrderRepository interface {
 	AddOrder(ctx context.Context, order *domain.Order) error
 	UpdateOrder(ctx context.Context, order *domain.Order) error
 	GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error)
-	GetOrderByNumber(ctx context.Context, number int) (*domain.Order, error)
+	GetOrderByNumber(ctx context.Context, number string) (*domain.Order, error)
 	Close()
 }
 type BalanceRepository interface {

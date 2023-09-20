@@ -1,25 +1,30 @@
 package domain
 
 import (
-	"fmt"
 	"time"
+	"unicode"
 )
 
 type Order struct {
-	number     int
+	number     string
 	status     string
 	accrual    int
 	uploadedAt time.Time
 	userID     int
 }
 
-func NewOrder(number int, status string, accrual int, uploadedAt time.Time, userID int) (*Order, error) {
-	if number == 0 {
-		return nil, fmt.Errorf("%w:number is required", ErrRequired)
+func NewOrder(number string, status string, accrual int, uploadedAt time.Time, userID int) (*Order, error) {
+	if number == "" {
+		return nil, ErrIncorrectOrderNumber
+	}
+	for _, el := range number {
+		if !unicode.IsDigit(el) {
+			return nil, ErrIncorrectOrderNumber
+		}
 	}
 	return &Order{number: number, status: status, accrual: accrual, uploadedAt: uploadedAt, userID: userID}, nil
 }
-func (o *Order) Number() int {
+func (o *Order) Number() string {
 	return o.number
 }
 func (o *Order) Status() string {
@@ -33,6 +38,9 @@ func (o *Order) UpploadedAt() time.Time {
 }
 func (o *Order) UserID() int {
 	return o.userID
+}
+func (o *Order) SetNumber(number string) {
+	o.number = number
 }
 func (o *Order) SetStatus(status string) {
 	o.status = status
