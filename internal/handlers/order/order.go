@@ -22,7 +22,7 @@ func NewOrders(ctx context.Context, services *service.Manager) *OrderController 
 	return &OrderController{ctx: ctx, services: services}
 }
 func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
-	logger.Log.Info("in Calculate handler")
+	logger.Log.Info("in load order handler")
 	number, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
@@ -41,7 +41,7 @@ func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 	err = oc.services.Order.AddOrder(r.Context(), order, claims.UserID)
 	switch {
 	case errors.Is(err, domain.ErrAccepted):
-		http.Error(w, "", http.StatusAccepted) //status 202
+		http.Error(w, "", http.StatusOK) //status 202
 		return
 	case errors.Is(err, domain.ErrConflict):
 		http.Error(w, "", http.StatusConflict) //status 409
@@ -50,7 +50,7 @@ func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusInternalServerError) //status 500
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusAccepted)
 }
 func (oc *OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 	logger.Log.Info("in getOrders handler")
