@@ -17,4 +17,9 @@ var (
 	//balance errors
 	ErrNotEnaugh            = errors.New("there are not enough funds on the account")
 	ErrIncorrectOrderNumber = errors.New("incorrect order number")
+
+	//accrual system errors
+	ErrNotRegistered        = errors.New("order not registered in accrual system")
+	ErrTooManyRequests      = errors.New("too many requests to accrual system")
+	ErrUnexpectedRespStatus = errors.New("unexpected response status")
 )

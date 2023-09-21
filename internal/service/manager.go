@@ -4,8 +4,31 @@ import (
 	"context"
 	"errors"
 
+	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/storage"
 )
+
+type UserService interface {
+	AddUser(ctx context.Context, user *domain.User) (int64, error)
+	GetUser(ctx context.Context, user *domain.User) (*domain.User, error)
+	CheckPassword(ctx context.Context, user *domain.User) (bool, error)
+}
+type OrderService interface {
+	AddOrder(ctx context.Context, order *domain.Order, id int) error
+	UpdateOrder(ctx context.Context, order *domain.Order) error
+	GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error)
+	GetOrderByNumber(ctx context.Context, number string) (*domain.Order, error)
+}
+type AccrualPointsService interface {
+	GetPointsForOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
+}
+type BalanceService interface {
+	GetBalance(ctx context.Context, id int) (*domain.Balance, error)
+}
+type DebitService interface {
+	AddDebit(ctx context.Context, debit *domain.Debit) error
+	GetDebitsByID(ctx context.Context, id int) ([]*domain.Debit, error)
+}
 
 type Manager struct {
 	User    UserService
@@ -27,33 +50,3 @@ func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
 		Debit:   NewDebitWebService(ctx, store),
 	}, nil
 }
-
-// func (m *Manager) AddOrder(ctx context.Context, o *domain.Order, claims authorization.Claims) error {
-// 	order, err := m.Order.GetOrderByNumber(ctx, o.Number())
-// 	if err != nil && !errors.Is(err, domain.ErrNotFound) {
-// 		//internal err
-// 		return err
-// 	}
-// 	if err == nil {
-// 		if order.UserID() == claims.UserID {
-// 			return domain.ErrAccepted
-// 		}
-// 		if order.UserID() != claims.UserID {
-// 			return domain.ErrConflict
-// 		}
-// 	}
-// 	err = m.Order.AddOrder(ctx, o, 0)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	lOrder, err := m.Accrual.GetPointsForOrder(ctx, o)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = m.Order.UpdateOrder(ctx, lOrder)
-// 	if err != nil {
-// 		//internal err
-// 		return err
-// 	}
-// 	return nil
-// }

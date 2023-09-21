@@ -8,6 +8,7 @@ import (
 	"github.com/DEHbNO4b/practicum_project/internal/config"
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
+	"github.com/go-chi/render"
 	"go.uber.org/zap"
 )
 
@@ -35,14 +36,16 @@ func (a *AccrualAgent) GetAccrual(number string) (*domain.Order, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	// if err != nil {
-	// 	logger.Log.Error("acrual server returned err", zap.Error(err))
-	// 	return nil, err
-	// }
+	order := Order{}
 	switch resp.StatusCode {
 	case 200:
+		render.DecodeJSON(resp.Body, &order)
+		dOrder, err := orderAgentToDomain(order)
+		return dOrder, err
 	case 204:
+		return nil, domain.ErrNotRegistered
 	case 429:
+		return nil, domain.ErrTooManyRequests
 	}
-	return domain.NewOrder(number, "", 0, time.Now(), 0)
+	return nil, domain.ErrUnexpectedRespStatus
 }
