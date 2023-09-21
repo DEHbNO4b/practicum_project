@@ -13,11 +13,11 @@ import (
 )
 
 var createDebitTable string = `CREATE TABLE if not exists debits (
-	number integer unique,
-	sum integer ,
-	time timestamptz,
-	user_id integer
-	);`
+										number   integer       unique,
+										sum      numeric(20,10) ,
+										time     timestamptz,
+										user_id  integer
+										);`
 
 type DebitDB struct {
 	DB *sql.DB
@@ -63,8 +63,9 @@ func (ddb *DebitDB) GetDebitsByID(ctx context.Context, id int) ([]*domain.Debit,
 
 	defer rows.Close()
 	var (
-		o, s int
-		t    time.Time
+		o string
+		s float64
+		t time.Time
 	)
 	debits := make([]*domain.Debit, 0, 10)
 	for rows.Next() {

@@ -3,8 +3,8 @@ package debit
 import "time"
 
 type Debit struct {
-	Order  int       `json:"order"`
-	Sum    int       `json:"sum"`
+	Order  string    `json:"order"`
+	Sum    float64   `json:"sum"`
 	Time   time.Time `json:"processed_at"`
 	UserID int       `json:"-"`
 }

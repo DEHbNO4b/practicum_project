@@ -1,32 +1,37 @@
 package domain
 
 import (
-	"fmt"
 	"time"
+	"unicode"
 )
 
 type Debit struct {
-	order  int
-	sum    int
+	order  string
+	sum    float64
 	time   time.Time
 	userID int
 }
 
-func NewDebit(o int, sum int, t time.Time, id int) (*Debit, error) {
-	if o == 0 {
-		return nil, fmt.Errorf("%w: order number is required", ErrRequired)
+func NewDebit(orderNumber string, sum float64, t time.Time, id int) (*Debit, error) {
+	if orderNumber == "" {
+		return nil, ErrIncorrectOrderNumber
+	}
+	for _, el := range orderNumber {
+		if !unicode.IsDigit(el) {
+			return nil, ErrIncorrectOrderNumber
+		}
 	}
 	return &Debit{
-		order:  o,
+		order:  orderNumber,
 		sum:    sum,
 		time:   t,
 		userID: id,
 	}, nil
 }
-func (d *Debit) Order() int {
+func (d *Debit) Order() string {
 	return d.order
 }
-func (d *Debit) Sum() int {
+func (d *Debit) Sum() float64 {
 	return d.sum
 }
 func (d *Debit) Time() time.Time {
@@ -35,10 +40,10 @@ func (d *Debit) Time() time.Time {
 func (d *Debit) UserID() int {
 	return d.userID
 }
-func (d *Debit) SetOrder(o int) {
+func (d *Debit) SetOrder(o string) {
 	d.order = o
 }
-func (d *Debit) SetSum(s int) {
+func (d *Debit) SetSum(s float64) {
 	d.sum = s
 }
 func (d *Debit) SetTime(t time.Time) {
