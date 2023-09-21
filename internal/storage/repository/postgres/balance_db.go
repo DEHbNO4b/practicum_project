@@ -44,7 +44,7 @@ func (bdb *BalanceDB) Close() {
 	}
 }
 func (bdb *BalanceDB) GetByID(ctx context.Context, id int) (*domain.Balance, error) {
-	row := bdb.DB.QueryRowContext(ctx, `select current,withdrawn from balance where id =$1`, id)
+	row := bdb.DB.QueryRowContext(ctx, `select current,withdrawn from balance where user_id =$1`, id)
 	var c, w int
 	if err := row.Scan(&c, &w); err != nil {
 		if err == sql.ErrNoRows {
