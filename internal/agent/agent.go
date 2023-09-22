@@ -30,8 +30,9 @@ func (a *AccrualAgent) GetAccrual(inputCh chan string) chan AccrualResponse {
 	respCh := make(chan AccrualResponse)
 
 	go func() {
+		defer close(respCh)
 		for number := range inputCh {
-			defer close(respCh)
+
 			req, err := http.NewRequest(http.MethodGet, a.url+`/api/orders/`+number, nil)
 			if err != nil {
 				logger.Log.Error("unable to create new request", zap.Error(err))
