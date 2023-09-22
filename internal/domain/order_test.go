@@ -10,7 +10,7 @@ func TestNewOrder(t *testing.T) {
 	type args struct {
 		number      string
 		status      string
-		accrual     int
+		accrual     float64
 		upploadedAt time.Time
 		userID      int
 	}

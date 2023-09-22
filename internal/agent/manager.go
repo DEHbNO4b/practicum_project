@@ -45,7 +45,7 @@ func (m *Manager) accrualInteraction(ctx context.Context) {
 	inputCh := generator(ctx, orders)
 	chanels := m.agent.FanOut(inputCh)
 	addResultCh := fanIn(ctx, chanels...)
-	m.updateOrdersInDB(ctx, addResultCh)
+	m.updateDB(ctx, addResultCh)
 }
 func (m *Manager) getNewOrdersFromDB(ctx context.Context) []*domain.Order {
 	orders, err := m.storage.Order.GetNewOrders(ctx)
@@ -54,12 +54,19 @@ func (m *Manager) getNewOrdersFromDB(ctx context.Context) []*domain.Order {
 	}
 	return orders
 }
-func (m *Manager) updateOrdersInDB(ctx context.Context, inputCh chan AccrualResponse) {
+func (m *Manager) updateDB(ctx context.Context, inputCh chan AccrualResponse) {
 	for resp := range inputCh {
 		if resp.err != nil {
 			continue
 		}
 		m.storage.Order.UpdateOrder(ctx, resp.order)
+		balance, err := m.storage.Balance.GetByID(ctx, resp.order.UserID())
+		if err != nil {
+			logger.Log.Error("unable to get balance from DB", zap.Error(err))
+			continue
+		}
+		balance.AddToCurrent(float64(resp.order.Accrual()))
+		m.storage.Balance.UpdateBalance(ctx, balance)
 	}
 }
 

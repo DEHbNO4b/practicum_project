@@ -18,7 +18,7 @@ var createTable string = `CREATE TABLE if not exists users (
 							id serial primary key,
 							login varchar(1000) UNIQUE,
 							password varchar(1000),
-							balance integer
+							balance numeric(20,10)
 							);`
 
 type UserDB struct {

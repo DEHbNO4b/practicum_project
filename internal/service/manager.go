@@ -23,6 +23,7 @@ type AccrualPointsService interface {
 	GetPointsForOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
 }
 type BalanceService interface {
+	NewBalance(ctx context.Context, id int) error
 	GetBalance(ctx context.Context, id int) (*domain.Balance, error)
 }
 type DebitService interface {

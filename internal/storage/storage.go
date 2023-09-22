@@ -24,7 +24,8 @@ type OrderRepository interface {
 }
 type BalanceRepository interface {
 	GetByID(ctx context.Context, id int) (*domain.Balance, error)
-	UpdateBalance(ctx context.Context, balance *domain.Balance) error
+	UpdateBalance(ctx context.Context, b *domain.Balance) error
+	NewBalance(ctx context.Context, b *domain.Balance) error
 	Close()
 }
 type DebitRepository interface {

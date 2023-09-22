@@ -16,7 +16,7 @@ import (
 var createOrderTable string = `CREATE TABLE if not exists orders (
 	number varchar(1000),
 	status varchar(1000) ,
-	accrual integer,
+	accrual numeric(20,10),
 	uploaded_at timestamptz,
 	user_id integer
 	);`
@@ -81,7 +81,7 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 		return nil, err
 	}
 	var (
-		a    int
+		a    float64
 		n, s string
 		u    time.Time
 	)
@@ -116,9 +116,10 @@ func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number string) (*domai
 	// row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	var (
-		id, a int
-		s     string
-		u     time.Time
+		id int
+		a  float64
+		s  string
+		u  time.Time
 	)
 	err := row.Scan(&s, &a, &u, &id)
 	if err == sql.ErrNoRows {
@@ -138,9 +139,10 @@ func (odb *OrderDB) GetNewOrders(ctx context.Context) ([]*domain.Order, error) {
 		return nil, err
 	}
 	var (
-		a, id int
-		n     string
-		u     time.Time
+		a  float64
+		id int
+		n  string
+		u  time.Time
 	)
 	orders := make([]*domain.Order, 0, 30)
 	for rows.Next() {

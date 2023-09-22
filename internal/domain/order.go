@@ -8,12 +8,12 @@ import (
 type Order struct {
 	number     string
 	status     string
-	accrual    int
+	accrual    float64
 	uploadedAt time.Time
 	userID     int
 }
 
-func NewOrder(number string, status string, accrual int, uploadedAt time.Time, userID int) (*Order, error) {
+func NewOrder(number string, status string, accrual float64, uploadedAt time.Time, userID int) (*Order, error) {
 	if number == "" {
 		return nil, ErrIncorrectOrderNumber
 	}
@@ -30,7 +30,7 @@ func (o *Order) Number() string {
 func (o *Order) Status() string {
 	return o.status
 }
-func (o *Order) Accrual() int {
+func (o *Order) Accrual() float64 {
 	return o.accrual
 }
 func (o *Order) UpploadedAt() time.Time {
@@ -45,7 +45,7 @@ func (o *Order) SetNumber(number string) {
 func (o *Order) SetStatus(status string) {
 	o.status = status
 }
-func (o *Order) SetAccrual(accrual int) {
+func (o *Order) SetAccrual(accrual float64) {
 	o.accrual = accrual
 }
 func (o *Order) SetTime(time time.Time) {

@@ -58,6 +58,12 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unable to create jwt token", http.StatusInternalServerError)
 		return
 	}
+	//создать баланс для нового юзера
+	err = uc.services.Balance.NewBalance(uc.ctx, int(id))
+	if err != nil {
+		http.Error(w, "unable to create new balance", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Authorization", "Bearer "+jwt)
 	w.Write([]byte("authorisation complited"))
 	w.WriteHeader(http.StatusOK)

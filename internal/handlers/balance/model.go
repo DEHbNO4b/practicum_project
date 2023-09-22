@@ -1,7 +1,7 @@
 package balance
 
 type Balance struct {
-	Current   int `json:"current"`
-	Withdrawn int `json:"withdrawn"`
-	UserID    int `json:"-"`
+	Current   float64 `json:"current"`
+	Withdrawn float64 `json:"withdrawn"`
+	UserID    int     `json:"-"`
 }

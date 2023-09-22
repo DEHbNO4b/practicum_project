@@ -11,8 +11,8 @@ import (
 )
 
 var createBalanceTable string = `CREATE TABLE if not exists balance (
-	current integer,
-	withdrawn integer,
+	current numeric(20,10),
+	withdrawn numeric(20,10),
 	user_id integer UNIQUE
 	);`
 
@@ -45,7 +45,7 @@ func (bdb *BalanceDB) Close() {
 }
 func (bdb *BalanceDB) GetByID(ctx context.Context, id int) (*domain.Balance, error) {
 	row := bdb.DB.QueryRowContext(ctx, `select current,withdrawn from balance where user_id =$1`, id)
-	var c, w int
+	var c, w float64
 	if err := row.Scan(&c, &w); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNotFound
@@ -57,11 +57,27 @@ func (bdb *BalanceDB) GetByID(ctx context.Context, id int) (*domain.Balance, err
 	return balance, nil
 }
 func (bdb *BalanceDB) UpdateBalance(ctx context.Context, balance *domain.Balance) error {
+	_, err := bdb.DB.ExecContext(ctx, `UPDATE balance SET current=$1,withdrawn=$2 WHERE user_id=$3 `,
+		balance.Current(), balance.Withdrown(), balance.UserID())
+	if err != nil {
+		logger.Log.Error("unable to update balance", zap.Error(err))
+		return err
+	}
 	return nil
 }
-func (bdb *BalanceDB) AddAccrual(ctx context.Context, id, accrual int) error {
-	return nil
-}
-func (bdb *BalanceDB) WriteOff(ctx context.Context, id, sum int) error {
+
+//	func (bdb *BalanceDB) AddAccrual(ctx context.Context, id, accrual int) error {
+//		return nil
+//	}
+//
+//	func (bdb *BalanceDB) WriteOff(ctx context.Context, id, sum int) error {
+//		return nil
+//	}
+func (bdb *BalanceDB) NewBalance(ctx context.Context, b *domain.Balance) error {
+	_, err := bdb.DB.ExecContext(ctx, `INSERT INTO balance (current,withdrawn,user_id) VALUES (0,0,$1); `, b.UserID())
+	if err != nil {
+		logger.Log.Error("unable to create new balance", zap.Error(err))
+		return err
+	}
 	return nil
 }
