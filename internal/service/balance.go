@@ -35,7 +35,7 @@ func (svc *BalanceWebService) NewBalance(ctx context.Context, id int) error {
 	return nil
 }
 
-func (svc *BalanceWebService) Withdrawm(ctx context.Context, sum float64, id int) error {
+func (svc *BalanceWebService) Withdrawn(ctx context.Context, sum float64, id int) error {
 
 	b, err := svc.storage.Balance.GetByID(ctx, id)
 	if err != nil {
@@ -46,6 +46,7 @@ func (svc *BalanceWebService) Withdrawm(ctx context.Context, sum float64, id int
 		return domain.ErrNotEnaugh
 	}
 	b.SetCurrent(b.Current() - sum)
+	b.SetWithdrown(b.Withdrown() + sum)
 	err = svc.storage.Balance.UpdateBalance(ctx, b)
 	if err != nil {
 		return err

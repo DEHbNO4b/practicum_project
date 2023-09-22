@@ -27,6 +27,9 @@ func (b *Balance) UserID() int {
 func (b *Balance) SetCurrent(c float64) {
 	b.current = c
 }
+func (b *Balance) SetWithdrown(w float64) {
+	b.withdrown = w
+}
 
 // func (b *Balance) AddToCurrent(sum float64) {
 // 	b.current += sum
