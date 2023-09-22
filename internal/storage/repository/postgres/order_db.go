@@ -67,6 +67,7 @@ func (odb *OrderDB) AddOrder(ctx context.Context, order *domain.Order) error {
 }
 func (odb *OrderDB) UpdateOrder(ctx context.Context, order *domain.Order) error {
 	logger.Log.Info("in database: ", zap.String("OrderDB", "UpdateOrder"))
+	logger.Log.Sugar().Info(order)
 	_, err := odb.DB.ExecContext(ctx, `UPDATE orders SET status=$1,accrual=$2 WHERE number=$3 `,
 		order.Status(), order.Accrual(), order.Number())
 	if err != nil {
@@ -77,7 +78,6 @@ func (odb *OrderDB) UpdateOrder(ctx context.Context, order *domain.Order) error 
 }
 func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error) {
 	logger.Log.Info("in database: ", zap.String("OrderDB", "GetOrderByID"))
-	logger.Log.Info("in get orders by id in postgres")
 	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,uploaded_at from orders where user_id=$1;`, id)
 	if err != nil {
 		logger.Log.Error("unable to load order params from db", zap.Error(err))
@@ -113,7 +113,9 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 	if len(orders) == 0 {
 		return nil, domain.ErrNotFound
 	}
+	logger.Log.Sugar().Info("orders: ", orders)
 	return orders, nil
+
 }
 func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number string) (*domain.Order, error) {
 	logger.Log.Info("in database: ", zap.String("OrderDB", "GetOrderByNumber"))

@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -48,12 +49,11 @@ func (a *AccrualAgent) GetAccrual(inputCh chan string) chan AccrualResponse {
 			switch resp.StatusCode {
 			case 200:
 				err := render.DecodeJSON(resp.Body, &order)
-				fmt.Printf("accrual server returned order: %+v\n", order)
 				if err != nil {
 					logger.Log.Error("request for accrual server returned err", zap.Error(err))
 					return
 				}
-				resp.Body.Close()
+				fmt.Printf("accrual server returned order: %+v\n", order)
 				dOrder, err := orderAgentToDomain(order)
 				respCh <- AccrualResponse{order: dOrder, err: err}
 			case 204:
@@ -64,6 +64,8 @@ func (a *AccrualAgent) GetAccrual(inputCh chan string) chan AccrualResponse {
 			default:
 				respCh <- AccrualResponse{order: nil, err: domain.ErrUnexpectedRespStatus}
 			}
+			io.ReadAll(resp.Body)
+			resp.Body.Close()
 		}
 	}()
 	return respCh

@@ -43,8 +43,8 @@ func (m *Manager) accrualInteraction(ctx context.Context) {
 	orders := m.getNewOrdersFromDB(ctx)
 	inputCh := generator(ctx, orders)
 	chanels := m.agent.FanOut(inputCh)
-	addResultCh := fanIn(ctx, chanels...)
-	m.updateDB(ctx, addResultCh)
+	resultCh := fanIn(ctx, chanels...)
+	m.updateDB(ctx, resultCh)
 }
 func (m *Manager) getNewOrdersFromDB(ctx context.Context) []*domain.Order {
 	orders, err := m.storage.Order.GetNewOrders(ctx)
