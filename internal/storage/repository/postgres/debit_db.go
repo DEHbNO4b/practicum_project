@@ -13,7 +13,7 @@ import (
 )
 
 var createDebitTable string = `CREATE TABLE if not exists debits (
-										number   integer       unique,
+										number  varchar(1000)  unique,
 										sum      numeric(20,10) ,
 										time     timestamptz,
 										user_id  integer
