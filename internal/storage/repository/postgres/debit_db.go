@@ -43,7 +43,9 @@ func NewDebitDB(dsn string) (*DebitDB, error) {
 }
 
 func (ddb *DebitDB) AddDebit(ctx context.Context, d *domain.Debit) error {
+
 	logger.Log.Info("in database: ", zap.String("DebitDB", "AddDebit"))
+
 	_, err := ddb.DB.ExecContext(ctx, `insert into debits (number,sum,time,user_id)
 						values($1,$2,$3,$4)`, d.Order(), d.Sum(), time.Now(), d.UserID())
 	if err != nil {

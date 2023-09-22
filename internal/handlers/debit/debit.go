@@ -36,20 +36,19 @@ func (dc *DebitController) AddDebit(w http.ResponseWriter, r *http.Request) {
 	}
 	domainDebit := handlerDebitToDomain(&debit)
 	domainDebit.SetID(claims.UserID)
-	// err = dc.services.Debit.AddDebit(r.Context(), domainDebit)
 	err = dc.services.AddDebit(r.Context(), domainDebit)
 	switch {
 	case errors.Is(err, domain.ErrIncorrectOrderNumber):
-		http.Error(w, "", http.StatusUnprocessableEntity)
+		http.Error(w, "", http.StatusUnprocessableEntity) //status 422
 		return
 	case errors.Is(err, domain.ErrNotEnaugh):
-		http.Error(w, "", http.StatusPaymentRequired)
+		http.Error(w, "", http.StatusPaymentRequired) //status 402
 		return
 	case err != nil:
-		http.Error(w, "", http.StatusInternalServerError)
+		http.Error(w, "", http.StatusInternalServerError) //status 500
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK) //status 200
 
 }
 func (dc *DebitController) GetAllDebits(w http.ResponseWriter, r *http.Request) {
@@ -68,5 +67,9 @@ func (dc *DebitController) GetAllDebits(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
-	render.JSON(w, r, debits)
+	hDebits := make([]*Debit, 0, 10)
+	for _, el := range debits {
+		hDebits = append(hDebits, domainDebitToHandler(el))
+	}
+	render.JSON(w, r, hDebits)
 }
