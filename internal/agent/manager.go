@@ -58,7 +58,6 @@ func (m *Manager) updateDB(ctx context.Context, inputCh chan AccrualResponse) {
 		if resp.err != nil {
 			continue
 		}
-		m.storage.Order.UpdateOrder(ctx, resp.order)
 		ord, err := m.storage.Order.GetOrderByNumber(ctx, resp.order.Number())
 		if err != nil {
 			logger.Log.Error("unable to get order  by numberfrom DB", zap.Error(err))
