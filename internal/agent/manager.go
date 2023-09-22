@@ -64,6 +64,8 @@ func (m *Manager) updateDB(ctx context.Context, inputCh chan AccrualResponse) {
 			logger.Log.Error("unable to get order  by numberfrom DB", zap.Error(err))
 			continue
 		}
+		resp.order.SetUserID(ord.UserID())
+		resp.order.SetTime(ord.UpploadedAt())
 		balance, err := m.storage.Balance.GetByID(ctx, ord.UserID())
 		if err != nil {
 			logger.Log.Error("unable to get balance from DB", zap.Error(err))
