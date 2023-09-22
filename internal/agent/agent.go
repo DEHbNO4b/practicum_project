@@ -27,9 +27,10 @@ func NewAccrualAgent(ctx context.Context) *AccrualAgent {
 }
 func (a *AccrualAgent) GetAccrual(inputCh chan string) chan AccrualResponse {
 	respCh := make(chan AccrualResponse)
-	defer close(respCh)
+
 	go func() {
 		for number := range inputCh {
+			defer close(respCh)
 			req, err := http.NewRequest(http.MethodGet, a.url+`/api/orders/`+number, nil)
 			if err != nil {
 				logger.Log.Error("acrual server request err", zap.Error(err))
@@ -38,12 +39,13 @@ func (a *AccrualAgent) GetAccrual(inputCh chan string) chan AccrualResponse {
 			resp, err := a.client.Do(req)
 			if err != nil {
 				respCh <- AccrualResponse{order: nil, err: err}
+				return
 			}
-			defer resp.Body.Close()
 			order := Order{}
 			switch resp.StatusCode {
 			case 200:
 				render.DecodeJSON(resp.Body, &order)
+				resp.Body.Close()
 				dOrder, err := orderAgentToDomain(order)
 				respCh <- AccrualResponse{order: dOrder, err: err}
 			case 204:

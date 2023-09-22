@@ -41,20 +41,20 @@ func (m *Manager) Start() {
 func (m *Manager) accrualInteraction(ctx context.Context) {
 	numbersCh := make(chan chan string)
 	defer close(numbersCh)
-	orders := m.getNewOrdersFromDb(ctx)
+	orders := m.getNewOrdersFromDB(ctx)
 	inputCh := generator(ctx, orders)
 	chanels := m.agent.FanOut(inputCh)
 	addResultCh := fanIn(ctx, chanels...)
-	m.updateOrdersInDb(ctx, addResultCh)
+	m.updateOrdersInDB(ctx, addResultCh)
 }
-func (m *Manager) getNewOrdersFromDb(ctx context.Context) []*domain.Order {
+func (m *Manager) getNewOrdersFromDB(ctx context.Context) []*domain.Order {
 	orders, err := m.storage.Order.GetNewOrders(ctx)
 	if err != nil {
 		logger.Log.Error("unable to GetNewOrders from storage", zap.Error(err))
 	}
 	return orders
 }
-func (m *Manager) updateOrdersInDb(ctx context.Context, inputCh chan AccrualResponse) {
+func (m *Manager) updateOrdersInDB(ctx context.Context, inputCh chan AccrualResponse) {
 	for resp := range inputCh {
 		if resp.err != nil {
 			continue

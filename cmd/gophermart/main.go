@@ -56,7 +56,7 @@ func run() error {
 	}
 	//init service manager(with storage inside)
 	agentManager := agent.NewManager(ctx, storage)
-	agentManager.Start()
+	go agentManager.Start()
 
 	//create handlers(with serviceManager inside)
 	uhandler := user.NewUsers(ctx, serviceManager)
