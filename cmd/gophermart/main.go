@@ -54,7 +54,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("%s %w", "unable to create service manager", err)
 	}
-	//init service manager(with storage inside)
+	//init and start AccrualAgentManager
 	agentManager := agent.NewManager(ctx, storage)
 	go agentManager.Start()
 

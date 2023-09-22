@@ -31,7 +31,6 @@ func NewManager(ctx context.Context, store *storage.Storage) *Manager {
 func (m *Manager) Start() {
 	ticker := time.NewTicker(m.period)
 	defer ticker.Stop()
-
 	for {
 		<-ticker.C
 		go m.accrualInteraction(m.ctx)

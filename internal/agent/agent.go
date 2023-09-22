@@ -22,7 +22,7 @@ type AccrualAgent struct {
 
 func NewAccrualAgent(ctx context.Context) *AccrualAgent {
 	cfg := config.Get()
-	cl := http.Client{Timeout: 1 * time.Second}
+	cl := http.Client{Timeout: 7 * time.Second}
 	a := &AccrualAgent{ctx: ctx, client: cl, url: cfg.AccrualSystemAdress}
 	return a
 }
