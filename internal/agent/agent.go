@@ -56,6 +56,7 @@ func (a *AccrualAgent) GetAccrual(inputCh chan string) chan AccrualResponse {
 				dOrder, err := orderAgentToDomain(order)
 				respCh <- AccrualResponse{order: dOrder, err: err}
 			case 204:
+				logger.Log.Info("accrual agent answered : \"no content\"")
 				respCh <- AccrualResponse{order: nil, err: domain.ErrNotRegistered}
 			case 429:
 				respCh <- AccrualResponse{order: nil, err: domain.ErrTooManyRequests}
