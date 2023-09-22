@@ -49,6 +49,7 @@ func (odb *OrderDB) Close() {
 	}
 }
 func (odb *OrderDB) AddOrder(ctx context.Context, order *domain.Order) error {
+	logger.Log.Info("in database: ", zap.String("OrderDB", "AddOrder"))
 	_, err := odb.DB.ExecContext(ctx, `INSERT INTO orders (number,status,accrual,uploaded_at,user_id)
 								VALUES ($1,$2,$3,$4,$5);`, order.Number(), order.Status(), order.Accrual(), time.Now(), order.UserID())
 	if err != nil {
@@ -65,6 +66,7 @@ func (odb *OrderDB) AddOrder(ctx context.Context, order *domain.Order) error {
 	return nil
 }
 func (odb *OrderDB) UpdateOrder(ctx context.Context, order *domain.Order) error {
+	logger.Log.Info("in database: ", zap.String("OrderDB", "UpdateOrder"))
 	_, err := odb.DB.ExecContext(ctx, `UPDATE orders SET status=$1,accrual=$2 WHERE number=$3 `,
 		order.Status(), order.Accrual(), order.Number())
 	if err != nil {
@@ -74,6 +76,7 @@ func (odb *OrderDB) UpdateOrder(ctx context.Context, order *domain.Order) error 
 	return nil
 }
 func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order, error) {
+	logger.Log.Info("in database: ", zap.String("OrderDB", "GetOrderByID"))
 	logger.Log.Info("in get orders by id in postgres")
 	rows, err := odb.DB.QueryContext(ctx, `SELECT number,status,accrual,uploaded_at from orders where user_id=$1;`, id)
 	if err != nil {
@@ -113,6 +116,7 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 	return orders, nil
 }
 func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number string) (*domain.Order, error) {
+	logger.Log.Info("in database: ", zap.String("OrderDB", "GetOrderByNumber"))
 	// row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	row := odb.DB.QueryRowContext(ctx, `SELECT status,accrual,uploaded_at,user_id from orders where number=$1;`, number)
 	var (
@@ -132,6 +136,7 @@ func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number string) (*domai
 	return o, nil
 }
 func (odb *OrderDB) GetNewOrders(ctx context.Context) ([]*domain.Order, error) {
+	logger.Log.Info("in database: ", zap.String("OrderDB", "GetNewOrders"))
 	logger.Log.Info("in get orders by id in postgres")
 	rows, err := odb.DB.QueryContext(ctx, `SELECT number,accrual,uploaded_at,user_id from orders where status='NEW';`)
 	if err != nil {

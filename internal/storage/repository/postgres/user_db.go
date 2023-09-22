@@ -49,6 +49,7 @@ func (udb *UserDB) Close() {
 	}
 }
 func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) (int64, error) {
+	logger.Log.Info("in database: ", zap.String("UserDB", "AddUser"))
 	user := userDomainToStore(u)
 	var id int64
 	err := udb.DB.QueryRowContext(ctx, `insert into users (login,password,balance)
@@ -68,6 +69,7 @@ func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) (int64, error) {
 	return id, nil
 }
 func (udb *UserDB) GetUser(ctx context.Context, login string) (*domain.User, error) {
+	logger.Log.Info("in database: ", zap.String("UserDB", "GetUser"))
 	row := udb.DB.QueryRowContext(ctx, `select id,password,balance from users  where login = $1;`, login)
 	var (
 		id       int

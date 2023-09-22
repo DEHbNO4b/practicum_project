@@ -44,6 +44,7 @@ func (bdb *BalanceDB) Close() {
 	}
 }
 func (bdb *BalanceDB) GetByID(ctx context.Context, id int) (*domain.Balance, error) {
+	logger.Log.Info("in database: ", zap.String("BalanceDB", "GetByID"))
 	row := bdb.DB.QueryRowContext(ctx, `select current,withdrawn from balance where user_id =$1`, id)
 	var c, w float64
 	if err := row.Scan(&c, &w); err != nil {
@@ -57,6 +58,7 @@ func (bdb *BalanceDB) GetByID(ctx context.Context, id int) (*domain.Balance, err
 	return balance, nil
 }
 func (bdb *BalanceDB) UpdateBalance(ctx context.Context, balance *domain.Balance) error {
+	logger.Log.Info("in database: ", zap.String("BalanceDB", "UpdateBalance"))
 	_, err := bdb.DB.ExecContext(ctx, `UPDATE balance SET current=$1,withdrawn=$2 WHERE user_id=$3 `,
 		balance.Current(), balance.Withdrown(), balance.UserID())
 	if err != nil {
@@ -74,6 +76,7 @@ func (bdb *BalanceDB) UpdateBalance(ctx context.Context, balance *domain.Balance
 //		return nil
 //	}
 func (bdb *BalanceDB) NewBalance(ctx context.Context, b *domain.Balance) error {
+	logger.Log.Info("in database: ", zap.String("BalanceDB", "NewBalance"))
 	_, err := bdb.DB.ExecContext(ctx, `INSERT INTO balance (current,withdrawn,user_id) VALUES (0,0,$1); `, b.UserID())
 	if err != nil {
 		logger.Log.Error("unable to create new balance", zap.Error(err))
