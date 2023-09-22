@@ -130,3 +130,39 @@ func (odb *OrderDB) GetOrderByNumber(ctx context.Context, number string) (*domai
 	o, _ := domain.NewOrder(number, s, a, u, id)
 	return o, nil
 }
+func (odb *OrderDB) GetNewOrders(ctx context.Context) ([]*domain.Order, error) {
+	logger.Log.Info("in get orders by id in postgres")
+	rows, err := odb.DB.QueryContext(ctx, `SELECT number,accrual,uploaded_at,user_id from orders where status='NEW';`)
+	if err != nil {
+		logger.Log.Error("unable to load order params from db", zap.Error(err))
+		return nil, err
+	}
+	var (
+		a, id int
+		n     string
+		u     time.Time
+	)
+	orders := make([]*domain.Order, 0, 30)
+	for rows.Next() {
+		err := rows.Scan(&n, &a, &u, &id)
+		if err != nil {
+			logger.Log.Error("unable to scan order parameters from db", zap.Error(err))
+			return nil, err
+		}
+		o, err := domain.NewOrder(n, "NEW", a, u, id)
+		if err != nil {
+			logger.Log.Error("unable to create new order", zap.Error(err))
+			return nil, err
+		}
+		orders = append(orders, o)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		logger.Log.Info("nil order data for user:", zap.String("id", strconv.Itoa(id)))
+		return nil, domain.ErrNilData
+	}
+	if len(orders) == 0 {
+		return nil, domain.ErrNotFound
+	}
+	return orders, nil
+}

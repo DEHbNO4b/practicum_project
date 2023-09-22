@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
+	"github.com/DEHbNO4b/practicum_project/internal/logger"
 	"github.com/DEHbNO4b/practicum_project/internal/storage"
+	"go.uber.org/zap"
 )
 
 type Manager struct {
@@ -30,32 +32,57 @@ func (m *Manager) Start(ctx context.Context) {
 
 	for {
 		<-ticker.C
-		orders := GetNewOrdersFromDb(ctx)
-		for _, o := range orders {
-			order, err := m.agent.GetAccrual(o.Number())
+		go m.accrualInteraction(ctx)
+	}
+}
+
+func (m *Manager) accrualInteraction(ctx context.Context) {
+	numbersCh := make(chan chan string)
+	defer close(numbersCh)
+	orders := m.getNewOrdersFromDb(ctx)
+	inputCh := generator(ctx, orders)
+	chanels := m.agent.FanOut(inputCh)
+	addResultCh := fanIn(ctx, chanels...)
+	m.updateOrdersInDb(ctx, addResultCh)
+}
+func (m *Manager) getNewOrdersFromDb(ctx context.Context) []*domain.Order {
+	orders, err := m.storage.Order.GetNewOrders(ctx)
+	if err != nil {
+		logger.Log.Error("unable to GetNewOrders from storage", zap.Error(err))
+	}
+	return orders
+}
+func (m *Manager) updateOrdersInDb(ctx context.Context, inputCh chan AccrualResponse) {
+	for resp := range inputCh {
+		if resp.err != nil {
+			continue
 		}
-
+		m.storage.Order.UpdateOrder(ctx, resp.order)
 	}
 }
 
-func GetNewOrdersFromDb(ctx context.Context) []*domain.Order {
-	return nil
-}
+// generator возвращает канал с данными
+func generator(ctx context.Context, input []*domain.Order) chan string {
+	// канал, в который будем отправлять данные из слайса
+	inputCh := make(chan string)
 
-// fanOut принимает канал данных, порождает 10 горутин
-func (m *Manager) FanOut(ctx context.Context, inputCh chan string) []chan AccrualResponse {
-	// количество горутин add
-	numWorkers := 10
-	// каналы, в которые отправляются результаты
-	channels := make([]chan AccrualResponse, numWorkers)
+	// горутина, в которой отправляем в канал  inputCh данные
+	go func() {
+		// как отправители закрываем канал, когда всё отправим
+		defer close(inputCh)
 
-	for i := 0; i < numWorkers; i++ {
-		// получаем канал из горутины add
-		addResultCh := m.agent.GetAccrual()
-		// отправляем его в слайс каналов
-		channels[i] = addResultCh
-	}
+		// перебираем все данные в слайсе
+		for _, data := range input {
+			select {
+			// если doneCh закрыт, сразу выходим из горутины
+			case <-ctx.Done():
+				return
+			// если doneCh не закрыт, кидаем в канал inputCh данные data
+			case inputCh <- data.Number():
+			}
+		}
+	}()
 
-	// возвращаем слайс каналов
-	return channels
+	// возвращаем канал для данных
+	return inputCh
 }
