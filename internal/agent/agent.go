@@ -24,28 +24,33 @@ func NewAccrualAgent(ctx context.Context) *AccrualAgent {
 	a := &AccrualAgent{ctx: ctx, client: cl, url: cfg.AccrualSystemAdress}
 	return a
 }
-func (a *AccrualAgent) GetAccrual(number string) (*domain.Order, error) {
-
-	req, err := http.NewRequest(http.MethodGet, a.url+`/api/orders/`+number, nil)
-	if err != nil {
-		logger.Log.Error("acrual server request err", zap.Error(err))
-		return nil, err
-	}
-	resp, err := a.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	order := Order{}
-	switch resp.StatusCode {
-	case 200:
-		render.DecodeJSON(resp.Body, &order)
-		dOrder, err := orderAgentToDomain(order)
-		return dOrder, err
-	case 204:
-		return nil, domain.ErrNotRegistered
-	case 429:
-		return nil, domain.ErrTooManyRequests
-	}
-	return nil, domain.ErrUnexpectedRespStatus
+func (a *AccrualAgent) GetAccrual(number string) chan AccrualResponse {
+	respCh := make(chan AccrualResponse)
+	defer close(respCh)
+	go func(number string) {
+		req, err := http.NewRequest(http.MethodGet, a.url+`/api/orders/`+number, nil)
+		if err != nil {
+			logger.Log.Error("acrual server request err", zap.Error(err))
+			respCh <- AccrualResponse{order: domain.Order{}, err: err}
+		}
+		resp, err := a.client.Do(req)
+		if err != nil {
+			respCh <- AccrualResponse{order: domain.Order{}, err: err}
+		}
+		defer resp.Body.Close()
+		order := Order{}
+		switch resp.StatusCode {
+		case 200:
+			render.DecodeJSON(resp.Body, &order)
+			dOrder, err := orderAgentToDomain(order)
+			respCh <- AccrualResponse{order: *dOrder, err: err}
+		case 204:
+			respCh <- AccrualResponse{order: domain.Order{}, err: domain.ErrNotRegistered}
+		case 429:
+			respCh <- AccrualResponse{order: domain.Order{}, err: domain.ErrTooManyRequests}
+		default:
+			respCh <- AccrualResponse{order: domain.Order{}, err: domain.ErrUnexpectedRespStatus}
+		}
+	}(number)
+	return respCh
 }
