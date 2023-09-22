@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -113,7 +114,9 @@ func (odb *OrderDB) GetOrdersByID(ctx context.Context, id int) ([]*domain.Order,
 	if len(orders) == 0 {
 		return nil, domain.ErrNotFound
 	}
-	logger.Log.Sugar().Info("orders: ", orders)
+	for _, el := range orders {
+		fmt.Printf("%+v\n", el)
+	}
 	return orders, nil
 
 }
