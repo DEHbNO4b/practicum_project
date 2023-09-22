@@ -42,11 +42,10 @@ func (svc *BalanceWebService) Withdrawm(ctx context.Context, sum float64, id int
 		return err
 	}
 
-	err = b.WriteOff(sum)
-	if err != nil {
+	if b.Current() < sum {
 		return domain.ErrNotEnaugh
 	}
-
+	b.SetCurrent(b.Current() - sum)
 	err = svc.storage.Balance.UpdateBalance(ctx, b)
 	if err != nil {
 		return err

@@ -70,7 +70,7 @@ func (m *Manager) updateDB(ctx context.Context, inputCh chan AccrualResponse) {
 			logger.Log.Error("unable to get balance from DB", zap.Error(err))
 			continue
 		}
-		balance.AddToCurrent(float64(resp.order.Accrual()))
+		balance.SetCurrent(balance.Current() + float64(resp.order.Accrual()))
 		m.storage.Balance.UpdateBalance(ctx, balance)
 	}
 }

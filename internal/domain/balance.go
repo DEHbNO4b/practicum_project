@@ -24,14 +24,17 @@ func (b *Balance) Withdrown() float64 {
 func (b *Balance) UserID() int {
 	return b.userID
 }
+func (b *Balance) SetCurrent(c float64) {
+	b.current = c
+}
 
-func (b *Balance) AddToCurrent(sum float64) {
-	b.current += sum
-}
-func (b *Balance) WriteOff(sum float64) error {
-	if sum > b.current {
-		return ErrNotEnaugh
-	}
-	b.current -= sum
-	return nil
-}
+// func (b *Balance) AddToCurrent(sum float64) {
+// 	b.current += sum
+// }
+// func (b *Balance) WriteOff(sum float64) error {
+// 	if sum > b.current {
+// 		return ErrNotEnaugh
+// 	}
+// 	b.current -= sum
+// 	return nil
+// }
