@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -33,18 +34,24 @@ func (a *AccrualAgent) GetAccrual(inputCh chan string) chan AccrualResponse {
 			defer close(respCh)
 			req, err := http.NewRequest(http.MethodGet, a.url+`/api/orders/`+number, nil)
 			if err != nil {
-				logger.Log.Error("acrual server request err", zap.Error(err))
+				logger.Log.Error("unable to create new request", zap.Error(err))
 				respCh <- AccrualResponse{order: nil, err: err}
 			}
 			resp, err := a.client.Do(req)
 			if err != nil {
+				logger.Log.Error("request for accrual server returned err", zap.Error(err))
 				respCh <- AccrualResponse{order: nil, err: err}
 				return
 			}
 			order := Order{}
 			switch resp.StatusCode {
 			case 200:
-				render.DecodeJSON(resp.Body, &order)
+				err := render.DecodeJSON(resp.Body, &order)
+				fmt.Printf("accrual server returned order: %+v\n", order)
+				if err != nil {
+					logger.Log.Error("request for accrual server returned err", zap.Error(err))
+					return
+				}
 				resp.Body.Close()
 				dOrder, err := orderAgentToDomain(order)
 				respCh <- AccrualResponse{order: dOrder, err: err}
