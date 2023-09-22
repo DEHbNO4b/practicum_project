@@ -10,6 +10,7 @@ import (
 	"github.com/DEHbNO4b/practicum_project/internal/domain"
 	"github.com/DEHbNO4b/practicum_project/internal/logger"
 	"github.com/DEHbNO4b/practicum_project/internal/service"
+	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/go-chi/render"
 )
 
@@ -26,6 +27,11 @@ func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 	number, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "", http.StatusBadRequest)
+		return
+	}
+	err = goluhn.Validate(string(number))
+	if err != nil {
+		http.Error(w, "failed luhn validation ", http.StatusBadRequest)
 		return
 	}
 	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
