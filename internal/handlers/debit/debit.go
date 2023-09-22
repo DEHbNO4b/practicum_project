@@ -36,7 +36,8 @@ func (dc *DebitController) AddDebit(w http.ResponseWriter, r *http.Request) {
 	}
 	domainDebit := handlerDebitToDomain(&debit)
 	domainDebit.SetID(claims.UserID)
-	err = dc.services.Debit.AddDebit(r.Context(), domainDebit)
+	// err = dc.services.Debit.AddDebit(r.Context(), domainDebit)
+	dc.services.AddDebit(r.Context(), domainDebit)
 	switch {
 	case errors.Is(err, domain.ErrIncorrectOrderNumber):
 		http.Error(w, "", http.StatusUnprocessableEntity)

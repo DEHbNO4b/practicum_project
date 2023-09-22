@@ -34,3 +34,23 @@ func (svc *BalanceWebService) NewBalance(ctx context.Context, id int) error {
 	}
 	return nil
 }
+
+func (svc *BalanceWebService) Withdrawm(ctx context.Context, sum float64, id int) error {
+
+	b, err := svc.storage.Balance.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	err = b.WriteOff(sum)
+	if err != nil {
+		return domain.ErrNotEnaugh
+	}
+
+	err = svc.storage.Balance.UpdateBalance(ctx, b)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

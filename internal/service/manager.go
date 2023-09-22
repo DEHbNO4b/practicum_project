@@ -25,6 +25,7 @@ type AccrualPointsService interface {
 type BalanceService interface {
 	NewBalance(ctx context.Context, id int) error
 	GetBalance(ctx context.Context, id int) (*domain.Balance, error)
+	Withdrawm(ctx context.Context, sum float64, id int) error
 }
 type DebitService interface {
 	AddDebit(ctx context.Context, debit *domain.Debit) error
@@ -50,4 +51,18 @@ func NewManager(ctx context.Context, store *storage.Storage) (*Manager, error) {
 		Balance: NewBalanceWebService(ctx, store),
 		Debit:   NewDebitWebService(ctx, store),
 	}, nil
+}
+
+func (m *Manager) AddDebit(ctx context.Context, d *domain.Debit) error {
+
+	err := m.Balance.Withdrawm(ctx, d.Sum(), d.UserID())
+	if err != nil {
+		return err
+	}
+	err = m.Debit.AddDebit(ctx, d)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
