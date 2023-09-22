@@ -31,7 +31,7 @@ func (oc *OrderController) LoadOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	err = goluhn.Validate(string(number))
 	if err != nil {
-		http.Error(w, "failed luhn validation ", http.StatusBadRequest)
+		http.Error(w, "failed luhn validation ", http.StatusUnprocessableEntity)
 		return
 	}
 	claims, err := authorization.GetClaims(r.Header.Get("Authorization"))
