@@ -10,7 +10,7 @@ type User struct {
 	ID       int
 	Login    string
 	Password string
-	Balance  int
+	Balance  float64
 }
 
 func userStoreToDomain(u *User) (*domain.User, error) {

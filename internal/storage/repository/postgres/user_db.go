@@ -70,8 +70,9 @@ func (udb *UserDB) AddUser(ctx context.Context, u *domain.User) (int64, error) {
 func (udb *UserDB) GetUser(ctx context.Context, login string) (*domain.User, error) {
 	row := udb.DB.QueryRowContext(ctx, `select id,password,balance from users  where login = $1;`, login)
 	var (
-		id, balance int
-		password    string
+		id       int
+		balance  float64
+		password string
 	)
 	err := row.Scan(&id, &password, &balance)
 	if err == sql.ErrNoRows {

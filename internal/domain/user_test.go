@@ -10,7 +10,7 @@ func TestNewUser(t *testing.T) {
 		id       int
 		login    string
 		password string
-		balance  int
+		balance  float64
 	}
 	tests := []struct {
 		name    string

@@ -8,10 +8,10 @@ type User struct {
 	id       int
 	login    string
 	password string
-	balance  int
+	balance  float64
 }
 
-func NewUser(id int, login, password string, balance int) (*User, error) {
+func NewUser(id int, login, password string, balance float64) (*User, error) {
 	if login == "" {
 		return nil, fmt.Errorf("%w:login is required", ErrRequired)
 	}
@@ -30,7 +30,7 @@ func (u *User) Login() string {
 func (u *User) Password() string {
 	return u.password
 }
-func (u *User) Balance() int {
+func (u *User) Balance() float64 {
 	return u.balance
 }
 
@@ -43,6 +43,6 @@ func (u *User) SetLogin(l string) {
 func (u *User) SetPassword(p string) {
 	u.password = p
 }
-func (u *User) SetBalance(b int) {
+func (u *User) SetBalance(b float64) {
 	u.balance = b
 }
