@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/DEHbNO4b/practicum_project/internal/agent"
 	"github.com/DEHbNO4b/practicum_project/internal/config"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/balance"
 	"github.com/DEHbNO4b/practicum_project/internal/handlers/debit"
@@ -53,6 +54,9 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("%s %w", "unable to create service manager", err)
 	}
+	//init service manager(with storage inside)
+	agentManager := agent.NewManager(ctx, storage)
+	agentManager.Start()
 
 	//create handlers(with serviceManager inside)
 	uhandler := user.NewUsers(ctx, serviceManager)

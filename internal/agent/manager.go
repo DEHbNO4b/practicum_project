@@ -11,6 +11,7 @@ import (
 )
 
 type Manager struct {
+	ctx     context.Context
 	agent   *AccrualAgent
 	period  time.Duration
 	storage *storage.Storage
@@ -21,18 +22,19 @@ func NewManager(ctx context.Context, store *storage.Storage) *Manager {
 	period := 10 * time.Second
 
 	return &Manager{
+		ctx:     ctx,
 		agent:   agent,
 		period:  period,
 		storage: store,
 	}
 }
-func (m *Manager) Start(ctx context.Context) {
+func (m *Manager) Start() {
 	ticker := time.NewTicker(m.period)
 	defer ticker.Stop()
 
 	for {
 		<-ticker.C
-		go m.accrualInteraction(ctx)
+		go m.accrualInteraction(m.ctx)
 	}
 }
 
