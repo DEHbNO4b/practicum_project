@@ -26,9 +26,11 @@ func (bc *BalanceController) GetBalance(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	b, err := bc.services.Balance.GetBalance(r.Context(), claims.UserID)
+
 	if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
-	render.JSON(w, r, b)
+	hBalance := domainBalanceToHandler(b)
+	render.JSON(w, r, hBalance)
 }
