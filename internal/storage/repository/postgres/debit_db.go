@@ -52,7 +52,7 @@ func (ddb *DebitDB) AddDebit(ctx context.Context, d *domain.Debit) error {
 	return nil
 }
 func (ddb *DebitDB) GetDebitsByID(ctx context.Context, id int) ([]*domain.Debit, error) {
-	rows, err := ddb.DB.QueryContext(ctx, `select number,sum,time from debits where id = $1;`, id)
+	rows, err := ddb.DB.QueryContext(ctx, `select number,sum,time from debits where user_id = $1;`, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNotFound
