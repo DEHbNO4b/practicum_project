@@ -38,8 +38,6 @@ func (m *Manager) Start() {
 }
 
 func (m *Manager) accrualInteraction(ctx context.Context) {
-	numbersCh := make(chan chan string)
-	defer close(numbersCh)
 	orders := m.getNewOrdersFromDB(ctx)
 	inputCh := generator(ctx, orders)
 	chanels := m.agent.FanOut(inputCh)
