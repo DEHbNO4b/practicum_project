@@ -1,0 +1,105 @@
+package user
+
+import (
+	"context"
+	"errors"
+	"net/http"
+
+	"github.com/DEHbNO4b/practicum_project/internal/authorization"
+	"github.com/DEHbNO4b/practicum_project/internal/domain"
+	"github.com/DEHbNO4b/practicum_project/internal/logger"
+	"github.com/DEHbNO4b/practicum_project/internal/service"
+	"github.com/go-chi/render"
+	"go.uber.org/zap"
+)
+
+type UserService interface {
+	AddUser(ctx context.Context, user *domain.User) error
+	CheckPassword(ctx context.Context, user *domain.User) (bool, error)
+}
+type UserController struct {
+	ctx      context.Context
+	services *service.Manager
+}
+
+func NewUsers(ctx context.Context, services *service.Manager) *UserController {
+	r := UserController{ctx: ctx, services: services}
+	return &r
+}
+func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
+	logger.Log.Info("in Register handler")
+	// user, err := readUser(r.Context(), r.Body)
+	user := User{}
+	err := render.DecodeJSON(r.Body, &user)
+	if err != nil {
+		http.Error(w, "unable to decode json from r.Body", http.StatusBadRequest) //status 400
+		return
+	}
+	dUser, err := userHandlerToDomain(user)
+	if err != nil {
+		logger.Log.Error("unable to create user", zap.Error(err))
+		http.Error(w, "", http.StatusBadRequest) //status 400
+		return
+	}
+
+	id, err := uc.services.User.AddUser(r.Context(), dUser)
+	if err != nil {
+		if errors.Is(err, domain.ErrUniqueViolation) {
+			http.Error(w, "", http.StatusConflict) //status 409
+			return
+		} else {
+			logger.Log.Error(err.Error())
+			http.Error(w, "eror from storage db", http.StatusInternalServerError) //status 500
+			return
+		}
+	}
+	jwt, err := authorization.BuildJWTString(int(id))
+	if err != nil {
+		http.Error(w, "unable to create jwt token", http.StatusInternalServerError)
+		return
+	}
+	//создать баланс для нового юзера
+	err = uc.services.Balance.NewBalance(uc.ctx, int(id))
+	if err != nil {
+		http.Error(w, "unable to create new balance", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Authorization", "Bearer "+jwt)
+	w.Write([]byte("authorisation complited"))
+	w.WriteHeader(http.StatusOK)
+}
+func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
+	logger.Log.Info("in Login handler")
+	requestUser := User{}
+	err := render.DecodeJSON(r.Body, &requestUser)
+	if err != nil {
+		http.Error(w, "", http.StatusBadRequest)
+		return
+	}
+	dUser, _ := userHandlerToDomain(requestUser)
+
+	_, err = uc.services.User.CheckPassword(r.Context(), dUser)
+
+	switch {
+	case errors.Is(err, domain.ErrNotFound):
+		http.Error(w, "wrong login or password", http.StatusUnauthorized)
+		return
+	case err != nil:
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+
+	userFromDB, err := uc.services.User.GetUser(r.Context(), dUser)
+	if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	jwt, err := authorization.BuildJWTString(userFromDB.ID())
+	if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Authorization", "Bearer "+jwt)
+	w.Write([]byte("password is correct"))
+
+}
